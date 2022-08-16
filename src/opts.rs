@@ -22,8 +22,9 @@ pub enum SubCommand {
 	// Lint(LintOpts),
 	#[clap(version = crate_version!(), author = crate_authors!())]
 	Check(CheckOpts),
-	// #[clap(version = crate_version!(), author = crate_authors!())]
-	// Test(TestOpts),
+
+	#[clap(version = crate_version!(), author = crate_authors!())]
+	Test(TestOpts),
 }
 
 /// List all the rules
@@ -37,11 +38,11 @@ pub struct ListOpts {
 /// Lint the rules
 #[derive(Debug, Parser)]
 pub struct LintOpts {
-	/// The repo string for now in the form owner/repo such as chevdor/foobar
+	/// todo
 	#[clap(required = true, index = 1)]
 	pub repository: String,
 
-	/// The output filename
+	/// todo
 	#[clap(short, long, alias("out"), parse(from_os_str))]
 	pub output: Option<PathBuf>,
 }
@@ -49,10 +50,11 @@ pub struct LintOpts {
 /// Check label set against the rules
 #[derive(Debug, Parser)]
 pub struct CheckOpts {
+	/// Spec file
 	#[clap(index = 1, default_value = "specs.yaml")]
 	pub spec_file: String,
 
-	/// The repo string for now in the form owner/repo such as chevdor/foobar
+	/// The list of labels
 	#[clap(long, short, required = true, multiple = true)]
 	pub labels: Vec<String>,
 }
@@ -60,11 +62,11 @@ pub struct CheckOpts {
 /// Run tests using rules and a test set
 #[derive(Debug, Parser)]
 pub struct TestOpts {
-	/// The repo string for now in the form owner/repo such as chevdor/foobar
-	#[clap(required = true, index = 1)]
-	pub repository: String,
+	/// The yaml test file
+	#[clap(index = 1, default_value = "tests.yaml")]
+	pub test_specs: String,
 
-	/// The output filename
-	#[clap(short, long, alias("out"), parse(from_os_str))]
-	pub output: Option<PathBuf>,
+	/// The spec is usually defined in the test file but you may override it
+	#[clap(long, short)]
+	pub spec_file: Option<PathBuf>,
 }

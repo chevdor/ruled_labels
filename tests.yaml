@@ -1,5 +1,5 @@
 name: Name of the test
-rules: labels.yaml
+spec_file: specs.yaml
 
 specs:
   - name: Fail

@@ -1,5 +1,6 @@
 ---
 name: chevdor/glabel
+version: 0.1.0
 description: Import from chevdor/glabel
 labels:
   - name: X1-frontend
@@ -48,8 +49,9 @@ rules:
     id: b_rules
     on: id            # default
     rule:
-      one_of:
-        - B*
+      require:
+        one_of:
+          - B*
 
   - name: Some topics
     rule:
@@ -62,7 +64,7 @@ rules:
   - name: Note Worthy need one Prio label
     id: b_need_p
     rule:
-      when: B*
+      # when: J*
       require:
         one_of: P*
 
@@ -71,7 +73,7 @@ rules:
     rule:
       when: B*
       require:
-        none_of: J*
+        none_of: T*
 
   - name: Note Worthy implies no J label
     disabled: false   # default

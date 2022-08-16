@@ -6,15 +6,14 @@ use env_logger::Env;
 use lib::*;
 use opts::*;
 use std::{env, error::Error, fs};
+
+use crate::lib::tests::Tests;
 // use termion::{color, style};
 
 fn main() -> Result<(), Box<dyn Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
 	log::info!("Running {} v{}", crate_name!(), crate_version!());
-
 	let opts: Opts = Opts::parse();
-	let pat = env::var("GITHUB_TOKEN").unwrap_or_default();
-	log::debug!("PAT: {}", if !pat.is_empty() { "SET" } else { "NOT SET " });
 
 	match opts.subcmd {
 		SubCommand::List(cmd_opts) => {
@@ -40,11 +39,26 @@ fn main() -> Result<(), Box<dyn Error>> {
 			// println!("{}", specs);
 			Ok(())
 		},
-		// SubCommand::Test(cmd_opts) => {
-		// 	log::debug!("test: {:#?}", cmd_opts);
+		SubCommand::Test(cmd_opts) => {
+			log::debug!("test: {:#?}", cmd_opts);
 
-		// 	Ok(())
-		// },
+			let s = fs::read_to_string(cmd_opts.test_specs)?;
+			let tests: Tests = serde_yaml::from_str(&s)?;
+
+			let spec_file = if let Some(spec_file) = cmd_opts.spec_file {
+				spec_file
+			} else {
+				tests.spec_file.clone()
+			};
+			log::debug!("spec_file: {}", spec_file.display());
+
+			let s = fs::read_to_string(spec_file)?;
+			let specs: spec::Specs = serde_yaml::from_str(&s)?;
+			// println!("tests = {:#?}", &tests);
+			println!("specs = {:#?}", &specs);
+			tests.run(specs);
+			Ok(())
+		},
 		// SubCommand::Get(get_opts) => {
 		// 	log::debug!("get: {:#?}", get_opts);
 		// 	let input_repo = Repo::from_str(&get_opts.repository).unwrap();
