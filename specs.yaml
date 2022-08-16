@@ -1,0 +1,81 @@
+---
+name: chevdor/glabel
+description: Import from chevdor/glabel
+labels:
+  - name: X1-frontend
+    description: Frontend
+    color: d73a4a
+  - name: X2-backend
+    description: Frontend
+    color: d73a4a
+  - name: X3-documentation
+    description: Improvements or additions to documentation
+    color: 0075ca
+  - name: P1-low_prio
+    description: Low prio
+    color: ffffff
+  - name: P2-low_prio
+    description: Low prio
+    color: ffffff
+  - name: P3-low_prio
+    description: Low prio
+    color: ffffff
+  - name: B0-silent
+    description: silent
+    color: ffffff
+  - name: B1-note_worthy
+    description: note worthy
+    color: ffffff
+  - name: B2-important
+    description: important
+    color: ffffff
+  - name: J1-junk1
+    description: junk1
+    color: ffffff
+  - name: J2-junk2
+    description: junk2
+    color: ffffff
+  - name: D1-disable1
+    description: diable1
+    color: ffffff
+
+parser:
+  id: ^(\w\d).*$     # default
+  description: ^\w\d-(.*?)$ # Optional, un-used
+
+rules:
+  - name: Exactly one visibility label
+    id: b_rules
+    on: id            # default
+    rule:
+      one_of:
+        - B*
+
+  - name: Some topics
+    rule:
+      require:
+        some_of:
+          - X1
+          - X2
+          - J2
+
+  - name: Note Worthy need one Prio label
+    id: b_need_p
+    rule:
+      when: B*
+      require:
+        one_of: P*
+
+  - name: Note Worthy implies no J label
+    id: b_excludes_j
+    rule:
+      when: B*
+      require:
+        none_of: J*
+
+  - name: Note Worthy implies no J label
+    disabled: false   # default
+    priority: 100         # default
+    rule:
+      exclude:
+        none_of: D*
