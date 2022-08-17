@@ -48,13 +48,13 @@ rules:
   - name: Exactly one visibility label
     id: b_rules
     # on: id            # default
-    rule:
+    spec:
       require: !one_of
         - B1
       exclude: ~
 
   - name: Some topics
-    rule:
+    spec:
       require: !one_of
         - X1
         - X2
@@ -62,7 +62,7 @@ rules:
 
   - name: Note Worthy need one Prio label
     id: b_need_p
-    rule:
+    spec:
       # when:
       #   - J*
       require: !one_of
@@ -72,7 +72,7 @@ rules:
 
   - name: Note Worthy implies no J label
     id: b_excludes_j
-    rule:
+    spec:
       # when:
       #   - B*
       exclude: !all_of
@@ -81,6 +81,6 @@ rules:
   - name: Note Worthy implies no J label
     disabled: false   # default
     priority: 100         # default
-    rule:
+    spec:
       exclude: !none_of
         - D*

@@ -46,10 +46,8 @@ impl Specs {
 		self.rules.iter().for_each(|rule| {
 			if rule.disabled {
 				log::warn!("Rule DISABLED: {}", rule.name);
-			} else if let Some(spec) = &rule.rule {
-				log::info!("spec: {:?}", spec);
 			} else {
-				log::warn!("No spec, skipping {}", rule.name);
+				log::info!("spec: {:?}", rule.spec);
 			}
 		});
 
@@ -80,7 +78,7 @@ mod test_specs {
 		let label_set = LabelSet::from(label_match);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, rule: Some(rs) };
+		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
 
@@ -103,7 +101,6 @@ mod test_specs {
 
 		specs.rules.iter().for_each(|rule| {
 			println!("rule = {:?}", rule);
-			assert!(rule.rule.is_some());
 		});
 	}
 
@@ -113,7 +110,7 @@ mod test_specs {
 		let label_set = LabelSet::from(label_match);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, rule: Some(rs) };
+		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
 
@@ -133,6 +130,5 @@ mod test_specs {
 
 		let rule = &new_specs.rules[0];
 		println!("rule = {:?}", rule);
-		assert!(rule.rule.is_some());
 	}
 }

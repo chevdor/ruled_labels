@@ -25,7 +25,7 @@ pub struct Rule {
 
 	// #[serde(default = "default_priority")]
 	// pub priority: u8,
-	pub rule: Option<RuleSpec>,
+	pub spec: RuleSpec,
 }
 
 // pub type LabelSet = String;
@@ -121,14 +121,26 @@ pub enum TokenRule {
 	All(LabelSet),
 }
 
+#[cfg(test)]
+impl Default for RuleSpec {
+	fn default() -> Self {
+		Self {
+			require: None,
+			exclude: None,
+		}
+	}
+}
+
+#[cfg(test)]
 impl Default for Rule {
 	fn default() -> Self {
+		let spec = RuleSpec::default();
 		Self {
 			name: "Rule".to_string(),
 			id: None,
 			disabled: false,
 			// priority: 100,
-			rule: None,
+			spec,
 		}
 	}
 }
@@ -215,7 +227,7 @@ mod test_rule_deserialize {
 		let token_rule = TokenRule::One(label_set);
 		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule: Rule =
-			Rule { name: "Foo".to_string(), rule: Some(rs), id: None, disabled: false };
+			Rule { name: "Foo".to_string(), spec: rs, id: None, disabled: false };
 
 		println!("{}", serde_yaml::to_string(&rule).unwrap());
 	}
@@ -235,8 +247,7 @@ mod test_rule_deserialize {
 		let yaml = r#"name: Foo
 id: foo
 disabled: false
-rule:
-  type: require
+spec:
   require: !one_of
   - B1
 "#;
