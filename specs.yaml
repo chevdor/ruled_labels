@@ -47,37 +47,40 @@ parser:
 rules:
   - name: Exactly one visibility label
     id: b_rules
-    on: id            # default
+    # on: id            # default
     rule:
-      require:
-        one_of:
-          - B*
+      require: !one_of
+        - B1
+      exclude: ~
 
   - name: Some topics
     rule:
-      require:
-        some_of:
-          - X1
-          - X2
-          - J2
+      require: !one_of
+        - X1
+        - X2
+        - J2
 
   - name: Note Worthy need one Prio label
     id: b_need_p
     rule:
-      # when: J*
-      require:
-        one_of: P*
+      # when:
+      #   - J*
+      require: !one_of
+        - P*
+      exclude: !all_of
+        - P1
 
   - name: Note Worthy implies no J label
     id: b_excludes_j
     rule:
-      when: B*
-      require:
-        none_of: T*
+      # when:
+      #   - B*
+      exclude: !all_of
+        - T*
 
   - name: Note Worthy implies no J label
     disabled: false   # default
     priority: 100         # default
     rule:
-      exclude:
-        none_of: D*
+      exclude: !none_of
+        - D*

@@ -1,7 +1,7 @@
 use super::rule::Rule;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Rules {
 	pub rules: Vec<Rule>,
 }

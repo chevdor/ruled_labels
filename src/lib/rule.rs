@@ -1,5 +1,5 @@
-use super::common::RegexPattern;
-use serde::Deserialize;
+// use super::common::RegexPattern;
+use serde::{Deserialize, Serialize};
 
 // fn default_priority() -> u8 {
 // 	100_u8
@@ -13,7 +13,7 @@ fn default_disabled() -> bool {
 	false
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Rule {
 	pub name: String,
 
@@ -28,45 +28,97 @@ pub struct Rule {
 	pub rule: Option<RuleSpec>,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq)]
-pub enum LabelSetSpec {
-	Item(String),
-	Regexp(RegexPattern),
-}
+// pub type LabelSet = String;
 
-impl From<&str> for LabelSetSpec {
+/// An type to describe one or a set of Labels
+/// either specifying it or providing a regexp matching several
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct LabelMatch(String);
+
+/// A Vec of `LabelMatch`
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct LabelSet(Vec<LabelMatch>);
+
+impl From<&str> for LabelMatch {
 	fn from(s: &str) -> Self {
-		if s.contains('*') {
-			LabelSetSpec::Regexp(s.into())
-		} else {
-			LabelSetSpec::Item(s.into())
-		}
+		Self { 0: s.to_string() }
 	}
 }
 
-#[derive(Debug, Deserialize)]
-pub enum RuleType {
-	Require(TokenRule),
-	Exclude(TokenRule),
+impl From<LabelMatch> for LabelSet {
+	fn from(lm: LabelMatch) -> Self {
+		Self { 0: vec![lm] }
+	}
 }
 
-#[derive(Debug, Deserialize)]
+impl From<&str> for LabelSet {
+	fn from(s: &str) -> Self {
+		LabelSet::from(LabelMatch::from(s))
+	}
+}
+
+// {
+// 	// Item(String),
+// 	// Regexp(RegexPattern),
+// }
+
+// impl From<&str> for LabelSet {
+// 	fn from(s: &str) -> Self {
+// 		if s.contains('*') {
+// 			LabelSet::Regexp(s.into())
+// 		} else {
+// 			LabelSet::Item(s.into())
+// 		}
+// 	}
+// }
+
+// #[derive(Debug, Serialize, Deserialize)]
+// pub enum RuleType {
+// 	#[serde(rename = "require")]
+// 	Require(TokenRule),
+// 	#[serde(rename = "exclude")]
+// 	Exclude(TokenRule),
+// }
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RuleSpec {
-	//TODO
-	// pub when: Option<LabelSetSpec>,
-	pub rule_type: Option<RuleType>,
+	// pub when: Option<LabelSet>,
+
+	// following does not work
+	// #[serde(flatten)]
+	// pub rule_type: RuleType,
+	pub require: Option<TokenRule>,
+	pub exclude: Option<TokenRule>,
 }
 
-#[derive(Debug, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize, Default)]
+// pub struct Token {
+// 	one_of: Option<TokenRule>,
+// 	some_of: Option<TokenRule>,
+// 	none_of: Option<TokenRule>,
+// }
+
+// pub type LabelSetNone =  LabelSet;
+// pub type LabelSetOne =  LabelSet;
+// pub type LabelSetSome =  LabelSet;
+// pub type LabelSetAll =  LabelSet;
+
+#[derive(Debug, Serialize, Deserialize)]
+// #[serde(untagged)]
+// #[serde(tag = "type")]
+// #[serde(tag = "type", content = "list")]
 pub enum TokenRule {
-	#[serde(alias = "none_of")]
-	None(LabelSetSpec),
+	#[serde(rename = "none_of")]
+	None(LabelSet),
 
-	#[serde(alias = "one_of")]
-	One(LabelSetSpec),
+	#[serde(rename = "one_of")]
+	One(LabelSet),
 
-	#[serde(alias = "some_of")]
-	Some(LabelSetSpec),
+	#[serde(rename = "some_of")]
+	Some(LabelSet),
+
+	#[serde(rename = "all_of")]
+	All(LabelSet),
 }
 
 impl Default for Rule {
@@ -96,13 +148,13 @@ mod test_rules {
 
 #[cfg(test)]
 mod test_label_set_spec {
-	use super::*;
+	// use super::*;
 
-	#[test]
-	fn test_from() {
-		assert_eq!(LabelSetSpec::Regexp("B*".into()), LabelSetSpec::from("B*"));
-		assert_eq!(LabelSetSpec::Item("B1".into()), LabelSetSpec::from("B1"));
-	}
+	// #[test]
+	// fn test_from() {
+	// 	assert_eq!(LabelSet::Regexp("B*".into()), LabelSet::from("B*"));
+	// 	assert_eq!(LabelSet::Item("B1".into()), LabelSet::from("B1"));
+	// }
 }
 
 // #[cfg(test)]
@@ -114,3 +166,97 @@ mod test_label_set_spec {
 //         TokenRule::from("_")
 //     }
 // }
+
+#[cfg(test)]
+mod test_rule_deserialize {
+	use super::*;
+
+	#[test]
+	fn test_token_rule_deserialize() {
+		let yaml = r#"!one_of
+- B1
+- B2
+"#;
+		println!("== yaml:\n{}", yaml);
+		let rs: TokenRule = serde_yaml::from_str(&yaml).unwrap();
+		println!("rs = {:?}", rs);
+	}
+
+	#[test]
+	fn test_token_rule_serialize() {
+		let label_match = LabelMatch::from("B1");
+		let label_set = LabelSet { 0: vec![label_match] };
+		let rs: TokenRule = TokenRule::One(label_set);
+		println!("{}", serde_yaml::to_string(&rs).unwrap());
+	}
+
+	// #[test]
+	// fn test_serialize_rule_type() {
+	// 	let rs: RuleType = RuleType::Require(Token { one_of: Some()});
+
+	// 		println!("{}", serde_yaml::to_string(&rs).unwrap());
+	// }
+
+	#[test]
+	fn test_rule_spec_serialize() {
+		let label_match = LabelMatch("B1".to_string());
+		let label_set = LabelSet { 0: vec![label_match] };
+
+		let token_rule = TokenRule::One(label_set);
+		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
+
+		println!("{}", serde_yaml::to_string(&rs).unwrap());
+	}
+
+	#[test]
+	fn test_rule_serialize() {
+		let label_match = LabelMatch("B1".to_string());
+		let label_set = LabelSet { 0: vec![label_match] };
+		let token_rule = TokenRule::One(label_set);
+		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule: Rule =
+			Rule { name: "Foo".to_string(), rule: Some(rs), id: None, disabled: false };
+
+		println!("{}", serde_yaml::to_string(&rule).unwrap());
+	}
+
+	// 	#[test]
+	// 	fn test_deserialize_rule_spec() {
+	// 		let yaml = r#"require: !one_of
+	// - B*
+	// "#;
+	// 		println!("== yaml:\n{}", yaml);
+	// 		let rs: RuleSpec = serde_yaml::from_str(&yaml).unwrap();
+	// 		println!("rs = {:?}", rs);
+	// 	}
+
+	#[test]
+	fn test_rule_deserialize() {
+		let yaml = r#"name: Foo
+id: foo
+disabled: false
+rule:
+  type: require
+  require: !one_of
+  - B1
+"#;
+		println!("== yaml:\n{}", yaml);
+		let rule: Rule = serde_yaml::from_str(&yaml).unwrap();
+		println!("rule = {:?}", rule);
+	}
+
+	#[test]
+	fn magic_test() {
+		let label_match = LabelMatch::from("foo");
+		let label_set = LabelSet::from(label_match);
+		let token_rule = TokenRule::One(label_set);
+		let rs = RuleSpec { require: Some(token_rule), exclude: None };
+
+		let s = format!("{}", serde_yaml::to_string(&rs).unwrap());
+		println!("{}", s);
+
+		let new_rs: RuleSpec = serde_yaml::from_str(&s).unwrap();
+		println!("{:#?}", new_rs);
+	}
+
+}
