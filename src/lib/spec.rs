@@ -1,4 +1,8 @@
-use super::{parser::Parser, rule::Rule};
+use super::{
+	parsed_label::LabelId,
+	parser::Parser,
+	rule::{LabelSet, Rule},
+};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
@@ -61,6 +65,11 @@ impl Specs {
 			let _ = self.check_label(label, others);
 		});
 		Ok(())
+	}
+
+	/// In the yaml spec file, the user either explicitely lists some `LabelId`
+	pub fn generate_label_set(set: LabelSet, extra: Option<LabelId>) -> Vec<LabelId> {
+		todo!()
 	}
 }
 

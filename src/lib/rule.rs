@@ -41,13 +41,13 @@ pub struct LabelSet(Vec<LabelMatch>);
 
 impl From<&str> for LabelMatch {
 	fn from(s: &str) -> Self {
-		Self { 0: s.to_string() }
+		Self(s.to_string())
 	}
 }
 
 impl From<LabelMatch> for LabelSet {
 	fn from(lm: LabelMatch) -> Self {
-		Self { 0: vec![lm] }
+		Self(vec![lm])
 	}
 }
 
@@ -124,10 +124,7 @@ pub enum TokenRule {
 #[cfg(test)]
 impl Default for RuleSpec {
 	fn default() -> Self {
-		Self {
-			require: None,
-			exclude: None,
-		}
+		Self { require: None, exclude: None }
 	}
 }
 
@@ -226,8 +223,7 @@ mod test_rule_deserialize {
 		let label_set = LabelSet { 0: vec![label_match] };
 		let token_rule = TokenRule::One(label_set);
 		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule: Rule =
-			Rule { name: "Foo".to_string(), spec: rs, id: None, disabled: false };
+		let rule: Rule = Rule { name: "Foo".to_string(), spec: rs, id: None, disabled: false };
 
 		println!("{}", serde_yaml::to_string(&rule).unwrap());
 	}
@@ -269,5 +265,4 @@ spec:
 		let new_rs: RuleSpec = serde_yaml::from_str(&s).unwrap();
 		println!("{:#?}", new_rs);
 	}
-
 }
