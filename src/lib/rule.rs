@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 // use super::common::RegexPattern;
 use super::parsed_label::LabelId;
 use serde::{Deserialize, Serialize};
@@ -27,6 +29,17 @@ pub struct Rule {
 	// #[serde(default = "default_priority")]
 	// pub priority: u8,
 	pub spec: RuleSpec,
+}
+
+impl Display for Rule {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_fmt(format_args!("{}", self.name))?;
+		f.write_fmt(format_args!(
+			"{}",
+			if let Some(id) = &self.id { format!(" ({})", id) } else { "".to_string() }
+		))?;
+		f.write_fmt(format_args!(" {}", if self.disabled { "DISABLED" } else { "" }))
+	}
 }
 
 // pub type LabelSet = String;

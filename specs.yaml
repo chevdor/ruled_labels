@@ -90,3 +90,9 @@ rules:
     spec:
       exclude: !none_of
         - D*
+  - name: Disabled sample
+    disabled: true   # default
+    priority: 100         # default
+    spec:
+      exclude: !none_of
+        - D*
