@@ -67,9 +67,29 @@ impl Specs {
 		Ok(())
 	}
 
-	/// In the yaml spec file, the user either explicitely lists some `LabelId`
-	pub fn generate_label_set(set: LabelSet, extra: Option<LabelId>) -> Vec<LabelId> {
-		todo!()
+	/// In the yaml spec file, the user either explicitely lists some `LabelId` or provide
+	/// a list of patterns. The list of patterns needs to be applied against the actual list
+	/// of labels. We also need to consider the case when a label is unknown to our specs.
+	/// Fro instance, if our local set contains A1 and B1 and we query about A2, A2 needs to be
+	/// added to the pre-filter set.
+	pub fn generate_label_set(&self, set: LabelSet, extra: Option<Vec<LabelId>>) -> Vec<LabelId> {
+		let mut list_from_spec: Vec<LabelId> = self
+			.labels
+			.iter()
+			.map(|label| LabelId::try_from(label.name.as_str()).unwrap())
+			.collect();
+		if let Some(mut x) = extra {
+			list_from_spec.append(&mut x);
+		}
+		println!("list_from_spec.len = {:?}", list_from_spec.len());
+		println!("list_from_spec = {:?}", list_from_spec);
+
+		// we now need to filter the full list according to the `set` and retain only the matches
+		list_from_spec
+			.iter()
+			.filter(|&label_id| set.matches(label_id).0)
+			.copied()
+			.collect()
 	}
 }
 
@@ -84,7 +104,7 @@ mod test_specs {
 	#[test]
 	fn test_spec_serialize() {
 		let label_match = LabelMatch::from("B1");
-		let label_set = LabelSet::from(label_match);
+		let label_set = LabelSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
@@ -116,7 +136,7 @@ mod test_specs {
 	#[test]
 	fn test_spec_ser_then_de() {
 		let label_match = LabelMatch::from("B1");
-		let label_set = LabelSet::from(label_match);
+		let label_set = LabelSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
@@ -139,5 +159,46 @@ mod test_specs {
 
 		let rule = &new_specs.rules[0];
 		println!("rule = {:?}", rule);
+	}
+
+	#[test]
+	fn test_generate_labet_set_none() {
+		let s = fs::read_to_string(SPEC_FILE).unwrap();
+		let specs: Specs = serde_yaml::from_str(&s).unwrap();
+		let label_set = LabelSet::from("A1,A2,B*");
+		let set = specs.generate_label_set(label_set, None);
+		// let target =LabelSet::from("A1", "A2", "B0", "B1", "B2")
+
+		assert_eq!(
+			vec![
+				LabelId::try_from("A1").unwrap(),
+				LabelId::try_from("A2").unwrap(),
+				LabelId::try_from("B0").unwrap(),
+				LabelId::try_from("B1").unwrap(),
+				LabelId::try_from("B2").unwrap(),
+			],
+			set
+		);
+	}
+
+	#[test]
+	fn test_generate_labet_set_some() {
+		let s = fs::read_to_string(SPEC_FILE).unwrap();
+		let specs: Specs = serde_yaml::from_str(&s).unwrap();
+		let label_set = LabelSet::from("A1,A2,B*,T*");
+		let extra = Some(vec![LabelId::try_from("T9").unwrap()]);
+		let set = specs.generate_label_set(label_set, extra);
+
+		assert_eq!(
+			vec![
+				LabelId::try_from("A1").unwrap(),
+				LabelId::try_from("A2").unwrap(),
+				LabelId::try_from("B0").unwrap(),
+				LabelId::try_from("B1").unwrap(),
+				LabelId::try_from("B2").unwrap(),
+				LabelId::try_from("T9").unwrap(),
+			],
+			set
+		);
 	}
 }

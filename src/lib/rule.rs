@@ -1,4 +1,5 @@
 // use super::common::RegexPattern;
+use super::parsed_label::LabelId;
 use serde::{Deserialize, Serialize};
 
 // fn default_priority() -> u8 {
@@ -39,21 +40,67 @@ pub struct LabelMatch(String);
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LabelSet(Vec<LabelMatch>);
 
+impl LabelSet {
+	/// Check whether the passed `LabelId` matches at least one
+	/// item in the `LabelSet`. If it matches it returns a tupple
+	/// made of the matching status as boolean as well as the list of
+	/// matching patterns.
+	pub fn matches(&self, id: &LabelId) -> (bool, Option<Vec<&LabelMatch>>) {
+		let matches: Vec<&LabelMatch> = self.0.iter().filter(|pat| pat.matches(id)).collect();
+		let status = !matches.is_empty();
+		let matches = if !matches.is_empty() { Some(matches) } else { None };
+		(status, matches)
+	}
+
+	pub fn len(&self) -> usize {
+		self.0.len()
+	}
+}
+
+impl LabelMatch {
+	/// Returns true if the passed `LabelId` matches our pattern
+	pub fn matches(&self, id: &LabelId) -> bool {
+		let pattern = &self.0;
+		if pattern.contains('*') {
+			match pattern.chars().next() {
+				Some(pat) => pat == id.letter,
+				_ => false,
+			}
+		} else {
+			pattern == &id.to_string()
+		}
+	}
+}
 impl From<&str> for LabelMatch {
 	fn from(s: &str) -> Self {
 		Self(s.to_string())
 	}
 }
 
-impl From<LabelMatch> for LabelSet {
-	fn from(lm: LabelMatch) -> Self {
-		Self(vec![lm])
+// impl From<LabelMatch> for LabelSet {
+// 	fn from(lm: LabelMatch) -> Self {
+// 		Self(vec![lm])
+// 	}
+// }
+
+impl From<Vec<LabelMatch>> for LabelSet {
+	fn from(lm: Vec<LabelMatch>) -> Self {
+		Self(lm)
 	}
 }
 
+/// Conversion from a comma, separated list of `LabelMatch` such as
+/// "A1,B2,C*".
 impl From<&str> for LabelSet {
 	fn from(s: &str) -> Self {
-		LabelSet::from(LabelMatch::from(s))
+		let res: Vec<LabelMatch> = s
+			.split(',')
+			.map(|s| {
+				println!("s = {:?}", s);
+				LabelMatch::from(s)
+			})
+			.collect();
+		LabelSet::from(res)
 	}
 }
 
@@ -166,6 +213,35 @@ mod test_label_set_spec {
 	// }
 }
 
+#[cfg(test)]
+mod test_label_set {
+	use crate::lib::parsed_label::LabelId;
+
+	use super::*;
+
+	#[test]
+	fn test_from_single() {
+		let set = LabelSet::from("B1");
+		assert_eq!(1, set.len());
+	}
+
+	#[test]
+	fn test_from_multiple() {
+		let set = LabelSet::from("B1, C*");
+		assert_eq!(2, set.len());
+	}
+
+	#[test]
+	fn test_matches() {
+		let set = LabelSet::from("A1,A2,B*");
+		assert_eq!(3, set.len());
+		let res = set.matches(&LabelId::try_from("A1").unwrap());
+		assert!(res.0);
+		assert!(res.1.is_some());
+		assert_eq!(1, res.1.unwrap().len());
+	}
+}
+
 // #[cfg(test)]
 // mod test_token_rule {
 //     use super::*;
@@ -255,7 +331,7 @@ spec:
 	#[test]
 	fn magic_test() {
 		let label_match = LabelMatch::from("foo");
-		let label_set = LabelSet::from(label_match);
+		let label_set = LabelSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 

@@ -3,6 +3,12 @@ name: chevdor/glabel
 version: 0.1.0
 description: Import from chevdor/glabel
 labels:
+  - name: A1-foo
+    description: Foo
+    color: d73a4a
+  - name: A2-bar
+    description: Bar
+    color: d73a4a
   - name: X1-frontend
     description: Frontend
     color: d73a4a

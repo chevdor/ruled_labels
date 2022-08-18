@@ -1,13 +1,76 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 pub type CodeNumber = u8;
 
 /// The `LabelId` is the initial letter + number from a Label.
 /// For instance, the `LabelId` for `B0-silent` is `B0`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub struct LabelId {
 	pub letter: char,
 	pub number: CodeNumber,
+}
+impl From<LabelId> for String {
+	fn from(val: LabelId) -> Self {
+		format!("{}{}", val.letter, val.number)
+	}
+}
+
+impl PartialEq<LabelId> for &str {
+	fn eq(&self, l: &LabelId) -> bool {
+		let letter = match self.chars().next() {
+			Some(l) => l,
+			_ => return false,
+		};
+		let number = match self.chars().next() {
+			Some(l) => match l.to_string().parse::<CodeNumber>() {
+				Ok(n) => n,
+				_ => return false,
+			},
+			None => return false,
+		};
+		l.letter == letter && l.number == number
+	}
+}
+
+impl PartialEq<str> for LabelId {
+	fn eq(&self, s: &str) -> bool {
+		let letter = match s.chars().next() {
+			Some(l) => l,
+			_ => return false,
+		};
+		let number = match s.chars().next() {
+			Some(l) => match l.to_string().parse::<CodeNumber>() {
+				Ok(n) => n,
+				_ => return false,
+			},
+			None => return false,
+		};
+		self.letter == letter && self.number == number
+	}
+}
+
+impl TryFrom<&str> for LabelId {
+	type Error = String;
+
+	fn try_from(s: &str) -> Result<Self, Self::Error> {
+		let mut chars = s.chars();
+		let first = chars.next();
+		let second = chars.next();
+
+		if first.is_none() || second.is_none() {
+			return Err(format!("Err 001: Invalid label: {} ({:?}{:?})", s, first, second))
+		}
+
+		let first = first.expect("Cannot fail").to_ascii_uppercase();
+		let second = second.expect("Cannot fail");
+
+		if !(first.is_alphabetic() && second.is_numeric()) {
+			return Err(format!("Err 002: Invalid label: {} ({}{})", s, first, second))
+		}
+		let second = second.to_string().parse::<CodeNumber>().expect("Cannot fail");
+		Ok(LabelId::new(first, second))
+	}
 }
 
 impl LabelId {
@@ -16,6 +79,11 @@ impl LabelId {
 	}
 }
 
+impl Display for LabelId {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_fmt(format_args!("{}{}", self.letter, self.number))
+	}
+}
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ParsedLabel {
 	pub id: LabelId,
@@ -26,22 +94,7 @@ impl TryFrom<&str> for ParsedLabel {
 	type Error = String;
 
 	fn try_from(s: &str) -> Result<Self, Self::Error> {
-		let first = s.chars().next();
-		let second = s.chars().next();
-
-		if first.is_none() || second.is_none() {
-			return Err(format!("Invalid label: {}", s))
-		}
-
-		let first = first.expect("Cannot fail").to_ascii_uppercase();
-		let second = second.expect("Cannot fail");
-
-		if !(first.is_alphabetic() && second.is_numeric()) {
-			return Err(format!("Invalid label: {}", s))
-		}
-		let second = second.to_string().parse::<CodeNumber>().expect("Cannot fail");
-
-		let id = LabelId::new(first, second);
+		let id = LabelId::try_from(s)?;
 		let description = s.to_string().drain(0..2).as_str().to_string();
 		let description = if description.is_empty() { None } else { Some(description) };
 		Ok(Self { id, description })
@@ -75,5 +128,37 @@ mod test_parsed_label {
 			println!("{:?}", label);
 			assert!(label.is_err());
 		});
+	}
+}
+
+#[cfg(test)]
+mod test_label_id {
+	use super::*;
+
+	#[test]
+	fn test_label_id_ok() {
+		const INPUTS: &'static [&'static str] = &["B0-Silent", "B1-silent", "X9-foobar", "B0"];
+
+		INPUTS.iter().for_each(|&case| {
+			let id = LabelId::try_from(case);
+			println!("{:?}", id);
+			assert!(id.is_ok());
+		});
+	}
+
+	#[test]
+	fn test_label_id_err() {
+		const INPUTS: &'static [&'static str] = &["BB-Silent", "B-silent", "99-foobar"];
+
+		INPUTS.iter().for_each(|&case| {
+			let id = LabelId::try_from(case);
+			println!("{:?}", id);
+			assert!(id.is_err());
+		});
+	}
+
+	#[test]
+	fn test_label_id_cmp() {
+		assert_eq!("B0", &String::from(LabelId::try_from("B0").unwrap()));
 	}
 }
