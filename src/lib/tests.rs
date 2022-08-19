@@ -1,3 +1,5 @@
+use crate::lib::parsed_label::LabelId;
+
 use super::spec::Specs;
 use serde::Deserialize;
 use std::path::PathBuf;
@@ -33,8 +35,13 @@ impl Tests {
 
 		self.specs.specs.iter().for_each(|spec| {
 			log::debug!("Running test {}", spec.name);
-			let labels = spec.labels.clone();
-			let _res = specs.check_labels(labels);
+			let labels: Vec<LabelId> = spec
+				.labels
+				.clone()
+				.iter()
+				.map(|s| LabelId::try_from(s.as_ref()).expect("Can parse label"))
+				.collect();
+			let _res = specs.check_labels(&labels);
 		});
 
 		todo!()

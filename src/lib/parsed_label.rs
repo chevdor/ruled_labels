@@ -10,11 +10,6 @@ pub struct LabelId {
 	pub letter: char,
 	pub number: CodeNumber,
 }
-impl From<LabelId> for String {
-	fn from(val: LabelId) -> Self {
-		format!("{}{}", val.letter, val.number)
-	}
-}
 
 impl PartialEq<LabelId> for &str {
 	fn eq(&self, l: &LabelId) -> bool {
@@ -50,10 +45,26 @@ impl PartialEq<str> for LabelId {
 	}
 }
 
-impl TryFrom<&str> for LabelId {
-	type Error = String;
+impl From<&str> for LabelId {
+	fn from(s: &str) -> Self {
+		LabelId::from_str(s).expect("String should be a valid LabelId")
+	}
+}
 
-	fn try_from(s: &str) -> Result<Self, Self::Error> {
+// error[E0119]: conflicting implementations of trait `std::convert::TryFrom<&str>` for type
+// `lib::parsed_label::LabelId` impl TryFrom<&str> for LabelId {
+// 	type Error = String;
+// 	fn try_from(s: &str) -> Result<Self, Self::Error> {
+// 		LabelId::from_str(s)
+// 	}
+// }
+
+impl LabelId {
+	pub fn new(letter: char, number: CodeNumber) -> Self {
+		Self { letter, number }
+	}
+
+	pub fn from_str(s: &str) -> Result<Self, String> {
 		let mut chars = s.chars();
 		let first = chars.next();
 		let second = chars.next();
@@ -73,12 +84,6 @@ impl TryFrom<&str> for LabelId {
 	}
 }
 
-impl LabelId {
-	pub fn new(letter: char, number: CodeNumber) -> Self {
-		Self { letter, number }
-	}
-}
-
 impl Display for LabelId {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.write_fmt(format_args!("{}{}", self.letter, self.number))
@@ -94,7 +99,7 @@ impl TryFrom<&str> for ParsedLabel {
 	type Error = String;
 
 	fn try_from(s: &str) -> Result<Self, Self::Error> {
-		let id = LabelId::try_from(s)?;
+		let id = LabelId::from_str(s)?;
 		let description = s.to_string().drain(0..2).as_str().to_string();
 		let description = if description.is_empty() { None } else { Some(description) };
 		Ok(Self { id, description })
@@ -140,7 +145,7 @@ mod test_label_id {
 		const INPUTS: &'static [&'static str] = &["B0-Silent", "B1-silent", "X9-foobar", "B0"];
 
 		INPUTS.iter().for_each(|&case| {
-			let id = LabelId::try_from(case);
+			let id = LabelId::from_str(case);
 			println!("{:?}", id);
 			assert!(id.is_ok());
 		});
@@ -151,7 +156,7 @@ mod test_label_id {
 		const INPUTS: &'static [&'static str] = &["BB-Silent", "B-silent", "99-foobar"];
 
 		INPUTS.iter().for_each(|&case| {
-			let id = LabelId::try_from(case);
+			let id = LabelId::from_str(case);
 			println!("{:?}", id);
 			assert!(id.is_err());
 		});
@@ -159,6 +164,13 @@ mod test_label_id {
 
 	#[test]
 	fn test_label_id_cmp() {
-		assert_eq!("B0", &String::from(LabelId::try_from("B0").unwrap()));
+		assert_eq!("B0", LabelId::from_str("B0").unwrap().to_string());
+	}
+
+	#[test]
+	fn test_from_str() {
+		let id = LabelId::from_str("B1").unwrap();
+		assert_eq!('B', id.letter);
+		assert_eq!(1, id.number);
 	}
 }

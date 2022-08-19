@@ -56,7 +56,7 @@ rules:
     # on: id            # default
     spec:
       require: !one_of
-        - B1
+        - B*
       exclude: ~
 
   - name: Some topics
@@ -84,12 +84,13 @@ rules:
       exclude: !all_of
         - T*
 
-  - name: Note Worthy implies no J label
+  - name: Exclude all Ds
     disabled: false   # default
     priority: 100         # default
     spec:
-      exclude: !none_of
+      exclude: !all_of
         - D*
+
   - name: Disabled sample
     disabled: true   # default
     priority: 100         # default

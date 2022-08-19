@@ -7,7 +7,7 @@ use lib::*;
 use opts::*;
 use std::{env, error::Error, fs};
 
-use crate::lib::tests::Tests;
+use crate::lib::{parsed_label::LabelId, tests::Tests};
 // use termion::{color, style};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,7 +35,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 			let s = fs::read_to_string(cmd_opts.spec_file)?;
 			let specs: spec::Specs = serde_yaml::from_str(&s)?;
 
-			let _ = specs.check_labels(cmd_opts.labels);
+			let label_ids: Vec<LabelId> =
+				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
+			let _ = specs.check_labels(&label_ids);
 			// println!("{}", specs);
 			Ok(())
 		},

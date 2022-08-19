@@ -1,7 +1,8 @@
 use super::{
+	label_set::LabelSet,
 	parsed_label::LabelId,
-	parser::Parser,
-	rule::{LabelSet, Rule},
+	// parser::Parser,
+	rule::Rule,
 };
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -13,7 +14,9 @@ pub struct Specs {
 	pub description: String,
 	pub version: Option<Version>,
 	pub labels: Vec<Label>,
-	pub parser: Parser,
+
+	// The following ends up not being used
+	// pub parser: Parser,
 
 	// #[serde(flatten)]
 	pub rules: Vec<Rule>,
@@ -31,7 +34,7 @@ impl Display for Specs {
 		f.write_fmt(format_args!("name: {}\n", self.name))?;
 		f.write_fmt(format_args!("desc: {}\n", self.description))?;
 		f.write_fmt(format_args!("labels: {:?}\n", self.labels.len()))?;
-		f.write_fmt(format_args!("parser id: {}\n", self.parser.id))?;
+		// f.write_fmt(format_args!("parser id: {}\n", self.parser.id))?;
 
 		f.write_str("Rules:\n")?;
 
@@ -44,25 +47,26 @@ impl Display for Specs {
 }
 
 impl Specs {
-	pub fn check_label(&self, label: &str, amongst: Vec<String>) -> Result<(), String> {
-		log::debug!("Checking label {} amongst {:?}", label, amongst);
+	/// This functions loops thru all non disabled rules and check the rule outcome.
+	pub fn check_label(&self, label: &LabelId, against: &Vec<LabelId>) -> Result<(), String> {
+		log::debug!("Checking label {} against {:?}", label, against);
 
-		self.rules.iter().for_each(|rule| {
-			if rule.disabled {
-				log::warn!("Rule DISABLED: {}", rule.name);
-			} else {
-				log::info!("spec: {:?}", rule.spec);
-			}
+		self.rules.iter().filter(|r| !r.disabled).for_each(|rule| {
+			// log::debug!("spec: {:?}", rule.spec);
+			let res = rule.check(label, against);
+			println!("res = {:?}", res);
 		});
 
 		Ok(())
 	}
 
-	pub fn check_labels(&self, labels: Vec<String>) -> Result<(), String> {
+	/// Loop thru all labels and check against others
+	pub fn check_labels(&self, labels: &[LabelId]) -> Result<(), String> {
 		labels.iter().for_each(|label| {
-			let mut others = labels.clone();
+			let mut others: Vec<LabelId> = Vec::from(labels);
 			others.retain(|x| x != label);
-			let _ = self.check_label(label, others);
+
+			let _ = self.check_label(label, &others);
 		});
 		Ok(())
 	}
@@ -95,7 +99,7 @@ impl Specs {
 
 #[cfg(test)]
 mod test_specs {
-	use crate::lib::rule::*;
+	use crate::lib::{label_match::LabelMatch, rule::*, token_rule::TokenRule};
 	use std::fs;
 
 	use super::*;
@@ -116,7 +120,7 @@ mod test_specs {
 			description: "desc".to_string(),
 			version: None,
 			labels: vec![],
-			parser: Parser::default(),
+			// parser: Parser::default(),
 			rules,
 		};
 
@@ -148,7 +152,7 @@ mod test_specs {
 			description: "desc".to_string(),
 			version: None,
 			labels: vec![],
-			parser: Parser::default(),
+			// parser: Parser::default(),
 			rules,
 		};
 

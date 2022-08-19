@@ -1,8 +1,7 @@
-use std::fmt::Display;
-
-// use super::common::RegexPattern;
-use super::parsed_label::LabelId;
+use super::{label_set::LabelSet, parsed_label::LabelId, token_rule::TokenRule};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+use Iterator;
 
 // fn default_priority() -> u8 {
 // 	100_u8
@@ -42,80 +41,131 @@ impl Display for Rule {
 	}
 }
 
-// pub type LabelSet = String;
-
-/// An type to describe one or a set of Labels
-/// either specifying it or providing a regexp matching several
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct LabelMatch(String);
-
-/// A Vec of `LabelMatch`
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct LabelSet(Vec<LabelMatch>);
-
-impl LabelSet {
-	/// Check whether the passed `LabelId` matches at least one
-	/// item in the `LabelSet`. If it matches it returns a tupple
-	/// made of the matching status as boolean as well as the list of
-	/// matching patterns.
-	pub fn matches(&self, id: &LabelId) -> (bool, Option<Vec<&LabelMatch>>) {
-		let matches: Vec<&LabelMatch> = self.0.iter().filter(|pat| pat.matches(id)).collect();
-		let status = !matches.is_empty();
-		let matches = if !matches.is_empty() { Some(matches) } else { None };
-		(status, matches)
+impl Rule {
+	/// `label` cannot be contained in `label_set`.
+	/// This is done by calling `self.exclude_all`
+	pub fn require_none(&self, label: &LabelId, others: &[LabelId], label_set: &LabelSet) -> bool {
+		self.exclude_all(label, others, label_set)
 	}
 
-	pub fn len(&self) -> usize {
-		self.0.len()
-	}
-}
+	/// Only one of the `label_set` should be part of the set `label` + `others`
+	pub fn require_one(&self, _label: &LabelId, _others: &[LabelId], _label_set: LabelSet) -> bool {
+		// let hits: Vec<LabelMatch> = label_set
+		// 	.into_iter()
+		// 	.filter(|lm| lm.matches(label) || lm.matches_one(others))
+		// 	.collect();
+		// let res1: (bool, Option<Vec<&LabelMatch>>) = label_set.matches(id);
 
-impl LabelMatch {
-	/// Returns true if the passed `LabelId` matches our pattern
-	pub fn matches(&self, id: &LabelId) -> bool {
-		let pattern = &self.0;
-		if pattern.contains('*') {
-			match pattern.chars().next() {
-				Some(pat) => pat == id.letter,
-				_ => false,
-			}
+		// let res2: (bool, Option<Vec<&LabelMatch>>) = label_set.matches(id);
+
+		todo!();
+		// hits.len() == 1
+	}
+
+	pub fn require_some(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	pub fn require_all(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	pub fn exclude_none(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	pub fn exclude_one(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	pub fn exclude_some(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	/// The passed `LabelId` should be neither be `_label` nor part of the `_label_set`.
+	pub fn exclude_all(
+		&self,
+		_label: &LabelId,
+		_others: &[LabelId],
+		_label_set: &LabelSet,
+	) -> bool {
+		todo!();
+	}
+
+	pub fn check(&self, label: &LabelId, others: &[LabelId]) -> Option<bool> {
+		log::debug!("check‰ng rule: {}", self);
+		log::debug!(
+			"  for: {} others: {}",
+			label,
+			others.iter().map(|l| l.to_string()).collect::<Vec<String>>().join(", ")
+		);
+
+		// TODO: impl the when filter
+
+		if self.disabled {
+			return None
+		};
+
+		if let Some(tr) = &self.spec.exclude {
+			log::debug!("  Processing exclude rules");
+			return Some(match tr {
+				TokenRule::None(ls) => self.exclude_none(label, others, ls),
+				TokenRule::One(ls) => self.exclude_one(label, others, ls),
+				TokenRule::Some(ls) => self.exclude_some(label, others, ls),
+				TokenRule::All(ls) => self.exclude_all(label, others, ls),
+			})
 		} else {
-			pattern == &id.to_string()
+			log::debug!("  NO exclude rules")
 		}
+
+		if let Some(tr) = &self.spec.require {
+			log::debug!("  Processing require rules");
+			return Some(match tr {
+				TokenRule::None(ls) => self.require_none(label, others, ls),
+				TokenRule::One(ls) => self.require_one(label, others, ls.clone()),
+				TokenRule::Some(ls) => self.require_some(label, others, ls),
+				TokenRule::All(ls) => self.require_all(label, others, ls),
+			})
+		} else {
+			log::debug!("  NO require rules")
+		}
+
+		None
 	}
 }
-impl From<&str> for LabelMatch {
-	fn from(s: &str) -> Self {
-		Self(s.to_string())
-	}
-}
+
+// pub type LabelSet = String;
 
 // impl From<LabelMatch> for LabelSet {
 // 	fn from(lm: LabelMatch) -> Self {
 // 		Self(vec![lm])
 // 	}
 // }
-
-impl From<Vec<LabelMatch>> for LabelSet {
-	fn from(lm: Vec<LabelMatch>) -> Self {
-		Self(lm)
-	}
-}
-
-/// Conversion from a comma, separated list of `LabelMatch` such as
-/// "A1,B2,C*".
-impl From<&str> for LabelSet {
-	fn from(s: &str) -> Self {
-		let res: Vec<LabelMatch> = s
-			.split(',')
-			.map(|s| {
-				println!("s = {:?}", s);
-				LabelMatch::from(s)
-			})
-			.collect();
-		LabelSet::from(res)
-	}
-}
 
 // {
 // 	// Item(String),
@@ -162,24 +212,6 @@ pub struct RuleSpec {
 // pub type LabelSetOne =  LabelSet;
 // pub type LabelSetSome =  LabelSet;
 // pub type LabelSetAll =  LabelSet;
-
-#[derive(Debug, Serialize, Deserialize)]
-// #[serde(untagged)]
-// #[serde(tag = "type")]
-// #[serde(tag = "type", content = "list")]
-pub enum TokenRule {
-	#[serde(rename = "none_of")]
-	None(LabelSet),
-
-	#[serde(rename = "one_of")]
-	One(LabelSet),
-
-	#[serde(rename = "some_of")]
-	Some(LabelSet),
-
-	#[serde(rename = "all_of")]
-	All(LabelSet),
-}
 
 #[cfg(test)]
 impl Default for RuleSpec {
@@ -228,9 +260,7 @@ mod test_label_set_spec {
 
 #[cfg(test)]
 mod test_label_set {
-	use crate::lib::parsed_label::LabelId;
-
-	use super::*;
+	use crate::lib::{label_set::LabelSet, parsed_label::LabelId};
 
 	#[test]
 	fn test_from_single() {
@@ -266,7 +296,9 @@ mod test_label_set {
 // }
 
 #[cfg(test)]
-mod test_rule_deserialize {
+mod test_rule {
+	use crate::lib::{label_match::LabelMatch, label_set::LabelSet};
+
 	use super::*;
 
 	#[test]
@@ -283,7 +315,7 @@ mod test_rule_deserialize {
 	#[test]
 	fn test_token_rule_serialize() {
 		let label_match = LabelMatch::from("B1");
-		let label_set = LabelSet { 0: vec![label_match] };
+		let label_set = LabelSet::from(vec![label_match]);
 		let rs: TokenRule = TokenRule::One(label_set);
 		println!("{}", serde_yaml::to_string(&rs).unwrap());
 	}
@@ -297,8 +329,8 @@ mod test_rule_deserialize {
 
 	#[test]
 	fn test_rule_spec_serialize() {
-		let label_match = LabelMatch("B1".to_string());
-		let label_set = LabelSet { 0: vec![label_match] };
+		let label_match = LabelMatch::from("B1");
+		let label_set = LabelSet::from(vec![label_match]);
 
 		let token_rule = TokenRule::One(label_set);
 		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
@@ -308,8 +340,8 @@ mod test_rule_deserialize {
 
 	#[test]
 	fn test_rule_serialize() {
-		let label_match = LabelMatch("B1".to_string());
-		let label_set = LabelSet { 0: vec![label_match] };
+		let label_match = LabelMatch::from("B1");
+		let label_set = LabelSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule: Rule = Rule { name: "Foo".to_string(), spec: rs, id: None, disabled: false };
@@ -353,5 +385,69 @@ spec:
 
 		let new_rs: RuleSpec = serde_yaml::from_str(&s).unwrap();
 		println!("{:#?}", new_rs);
+	}
+
+	#[test]
+	fn test_rule_check_require_none_of() {
+		let token_rule =
+			TokenRule::None(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(
+			&LabelId::try_from("B0").unwrap(),
+			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+		);
+
+		assert_eq!(Some(true), res);
+	}
+
+	#[test]
+	fn test_rule_check_require_one_of() {
+		let token_rule =
+			TokenRule::One(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(
+			&LabelId::try_from("B0").unwrap(),
+			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+		);
+
+		assert_eq!(Some(true), res);
+	}
+
+	#[test]
+	fn test_rule_check_require_some_of() {
+		let token_rule =
+			TokenRule::Some(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(
+			&LabelId::try_from("B0").unwrap(),
+			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+		);
+
+		assert_eq!(Some(true), res);
+	}
+
+	#[test]
+	fn test_rule_check_exclude_all_of() {
+		let token_rule =
+			TokenRule::All(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { exclude: Some(token_rule), require: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(
+			&LabelId::try_from("B0").unwrap(),
+			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+		);
+
+		assert_eq!(Some(false), res);
 	}
 }
