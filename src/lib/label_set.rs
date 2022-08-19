@@ -18,9 +18,15 @@ impl LabelSet {
 	}
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_one(&self, ids: Vec<&LabelId>) -> bool {
-		let hits = ids.iter().find(|&&id| self.matches(id).0);
-		hits.is_some()
+	pub fn matches_one(&self, ids: Vec<LabelId>) -> bool {
+		let hits = ids.iter().filter(|&id| self.matches(id).0);
+		hits.count() == 1
+	}
+
+	/// Returns true if one of the passed `LabelId` matches items in the set.
+	pub fn matches_some(&self, ids: Vec<LabelId>) -> bool {
+		let hits = ids.iter().filter(|&id| self.matches(id).0);
+		hits.count() >= 1
 	}
 
 	/// Returns true if ALL of the passed `LabelId` matches the items in the set.
@@ -113,7 +119,7 @@ mod test_label_set {
 
 	#[test]
 	fn test_matches_one() {
-		assert!(LabelSet::default().matches_one(vec![&LabelId::from("B1")]));
+		assert!(LabelSet::default().matches_one(vec![LabelId::from("B1")]));
 	}
 
 	#[test]

@@ -45,30 +45,29 @@ impl Rule {
 	/// `label` cannot be contained in `label_set`.
 	/// This is done by calling `self.exclude_all`
 	pub fn require_none(&self, label: &LabelId, others: &[LabelId], label_set: &LabelSet) -> bool {
+		println!("require_none");
 		self.exclude_all(label, others, label_set)
 	}
 
-	/// Only one of the `label_set` should be part of the set `label` + `others`
-	pub fn require_one(&self, _label: &LabelId, _others: &[LabelId], _label_set: LabelSet) -> bool {
-		// let hits: Vec<LabelMatch> = label_set
-		// 	.into_iter()
-		// 	.filter(|lm| lm.matches(label) || lm.matches_one(others))
-		// 	.collect();
-		// let res1: (bool, Option<Vec<&LabelMatch>>) = label_set.matches(id);
-
-		// let res2: (bool, Option<Vec<&LabelMatch>>) = label_set.matches(id);
-
-		todo!();
-		// hits.len() == 1
+	fn concat_labels(label: &LabelId, others: &[LabelId]) -> Vec<LabelId> {
+		let mut res = Vec::from(others);
+		res.push(*label);
+		res
 	}
 
-	pub fn require_some(
-		&self,
-		_label: &LabelId,
-		_others: &[LabelId],
-		_label_set: &LabelSet,
-	) -> bool {
-		todo!();
+	/// Only one of the `label_set` should be part of the set `label` + `others`
+	pub fn require_one(&self, label: &LabelId, others: &[LabelId], label_set: LabelSet) -> bool {
+		println!("require_one");
+		let ids = Rule::concat_labels(label, others);
+		println!("ids = {:?}", ids);
+		println!("labelset = {:?}", label_set);
+		label_set.matches_one(ids)
+	}
+
+	pub fn require_some(&self, label: &LabelId, others: &[LabelId], label_set: &LabelSet) -> bool {
+		println!("require_some");
+		let ids = Rule::concat_labels(label, others);
+		label_set.matches_some(ids)
 	}
 
 	pub fn require_all(
@@ -77,6 +76,7 @@ impl Rule {
 		_others: &[LabelId],
 		_label_set: &LabelSet,
 	) -> bool {
+		println!("require_all");
 		todo!();
 	}
 
@@ -86,7 +86,8 @@ impl Rule {
 		_others: &[LabelId],
 		_label_set: &LabelSet,
 	) -> bool {
-		todo!();
+		println!("exclude_none");
+		true
 	}
 
 	pub fn exclude_one(
@@ -95,6 +96,7 @@ impl Rule {
 		_others: &[LabelId],
 		_label_set: &LabelSet,
 	) -> bool {
+		println!("exclude_one");
 		todo!();
 	}
 
@@ -104,17 +106,17 @@ impl Rule {
 		_others: &[LabelId],
 		_label_set: &LabelSet,
 	) -> bool {
+		println!("exclude_some");
 		todo!();
 	}
 
 	/// The passed `LabelId` should be neither be `_label` nor part of the `_label_set`.
-	pub fn exclude_all(
-		&self,
-		_label: &LabelId,
-		_others: &[LabelId],
-		_label_set: &LabelSet,
-	) -> bool {
-		todo!();
+	pub fn exclude_all(&self, label: &LabelId, others: &[LabelId], label_set: &LabelSet) -> bool {
+		println!("exclude_all");
+		let ids = Rule::concat_labels(label, others);
+		let match_some = label_set.matches_some(ids);
+		println!("match_some = {:?}", match_some);
+		!match_some
 	}
 
 	pub fn check(&self, label: &LabelId, others: &[LabelId]) -> Option<bool> {
@@ -132,6 +134,7 @@ impl Rule {
 		};
 
 		if let Some(tr) = &self.spec.exclude {
+			println!("EXCLUDE");
 			log::debug!("  Processing exclude rules");
 			return Some(match tr {
 				TokenRule::None(ls) => self.exclude_none(label, others, ls),
@@ -144,6 +147,7 @@ impl Rule {
 		}
 
 		if let Some(tr) = &self.spec.require {
+			println!("REQUIRE");
 			log::debug!("  Processing require rules");
 			return Some(match tr {
 				TokenRule::None(ls) => self.require_none(label, others, ls),
@@ -388,7 +392,23 @@ spec:
 	}
 
 	#[test]
-	fn test_rule_check_require_none_of() {
+	fn test_rule_check_require_none_of_true() {
+		let token_rule =
+			TokenRule::None(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(
+			&LabelId::try_from("T0").unwrap(),
+			&vec![LabelId::from("T1"), LabelId::from("T2")],
+		);
+
+		assert_eq!(Some(true), res);
+	}
+
+	#[test]
+	fn test_rule_check_require_none_of_false() {
 		let token_rule =
 			TokenRule::None(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
@@ -397,14 +417,27 @@ spec:
 		// println!("rule = {:?}", rule);
 		let res = rule.check(
 			&LabelId::try_from("B0").unwrap(),
-			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+			&vec![LabelId::from("B1"), LabelId::from("B2")],
 		);
+
+		assert_eq!(Some(false), res);
+	}
+
+	#[test]
+	fn test_rule_check_require_one_of_true() {
+		let token_rule =
+			TokenRule::One(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let spec = RuleSpec { require: Some(token_rule), exclude: None };
+		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+
+		// println!("rule = {:?}", rule);
+		let res = rule.check(&LabelId::try_from("B0").unwrap(), &vec![]);
 
 		assert_eq!(Some(true), res);
 	}
 
 	#[test]
-	fn test_rule_check_require_one_of() {
+	fn test_rule_check_require_one_of_false() {
 		let token_rule =
 			TokenRule::One(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
@@ -413,10 +446,10 @@ spec:
 		// println!("rule = {:?}", rule);
 		let res = rule.check(
 			&LabelId::try_from("B0").unwrap(),
-			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+			&vec![LabelId::from("B1"), LabelId::from("B2")],
 		);
 
-		assert_eq!(Some(true), res);
+		assert_eq!(Some(false), res);
 	}
 
 	#[test]
@@ -429,14 +462,14 @@ spec:
 		// println!("rule = {:?}", rule);
 		let res = rule.check(
 			&LabelId::try_from("B0").unwrap(),
-			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+			&vec![LabelId::from("B1"), LabelId::from("B2")],
 		);
 
 		assert_eq!(Some(true), res);
 	}
 
 	#[test]
-	fn test_rule_check_exclude_all_of() {
+	fn test_rule_check_exclude_all_of_false() {
 		let token_rule =
 			TokenRule::All(LabelSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
 		let spec = RuleSpec { exclude: Some(token_rule), require: None };
@@ -445,7 +478,7 @@ spec:
 		// println!("rule = {:?}", rule);
 		let res = rule.check(
 			&LabelId::try_from("B0").unwrap(),
-			&vec![LabelId::try_from("B1").unwrap(), LabelId::try_from("B2").unwrap()],
+			&vec![LabelId::from("B1"), LabelId::from("B2")],
 		);
 
 		assert_eq!(Some(false), res);
