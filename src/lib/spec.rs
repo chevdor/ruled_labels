@@ -47,29 +47,38 @@ impl Display for Specs {
 }
 
 impl Specs {
-	/// This functions loops thru all non disabled rules and check the rule outcome.
-	pub fn check_label(&self, label: &LabelId, against: &Vec<LabelId>) -> Result<(), String> {
-		log::debug!("Checking label {} against {:?}", label, against);
-
-		self.rules.iter().filter(|r| !r.disabled).for_each(|rule| {
-			// log::debug!("spec: {:?}", rule.spec);
-			let res = rule.check(label, against);
-			println!("res = {:?}", res);
-		});
-
-		Ok(())
+	/// This functions loops thru all rules and check the rule outcome.
+	pub fn run_checks(&self, labels: &[LabelId]) -> Vec<Option<bool>> {
+		log::debug!("Checking {:?} labels", labels.len());
+		let res: Vec<Option<bool>> = self.rules.iter().map(|rule| rule.check(labels)).collect();
+		res
 	}
+
+	/// This functions loops thru all non disabled rules and check the rule outcome.
+	/// DEPRECATED
+	// pub fn check_label(&self, label: &LabelId, against: &Vec<LabelId>) -> Result<(), String> {
+	// 	log::debug!("  Checking label {} against {:?}", label, against);
+
+	// 	self.rules.iter().filter(|r| !r.disabled).for_each(|rule| {
+	// 		// log::debug!("spec: {:?}", rule.spec);
+	// 		let res = rule.check_old(label, against);
+	// 		log::debug!("    rule check = {:?}", res);
+	// 	});
+
+	// 	Ok(())
+	// }
 
 	/// Loop thru all labels and check against others
-	pub fn check_labels(&self, labels: &[LabelId]) -> Result<(), String> {
-		labels.iter().for_each(|label| {
-			let mut others: Vec<LabelId> = Vec::from(labels);
-			others.retain(|x| x != label);
+	/// DEPRECATED
+	// pub fn check_labels(&self, labels: &[LabelId]) -> Result<(), String> {
+	// 	labels.iter().for_each(|label| {
+	// 		let mut others: Vec<LabelId> = Vec::from(labels);
+	// 		others.retain(|x| x != label);
 
-			let _ = self.check_label(label, &others);
-		});
-		Ok(())
-	}
+	// 		let _ = self.check_label(label, &others);
+	// 	});
+	// 	Ok(())
+	// }
 
 	/// In the yaml spec file, the user either explicitely lists some `LabelId` or provide
 	/// a list of patterns. The list of patterns needs to be applied against the actual list

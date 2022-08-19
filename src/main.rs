@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			let label_ids: Vec<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
-			let _ = specs.check_labels(&label_ids);
+			let _ = specs.run_checks(&label_ids);
 			// println!("{}", specs);
 			Ok(())
 		},
@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 			let s = fs::read_to_string(spec_file)?;
 			let specs: spec::Specs = serde_yaml::from_str(&s)?;
 			// println!("tests = {:#?}", &tests);
-			println!("specs = {:#?}", &specs);
+			// println!("specs = {:#?}", &specs);
 			tests.run(specs);
 			Ok(())
 		},

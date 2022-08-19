@@ -59,14 +59,14 @@ rules:
         - B*
       exclude: ~
 
-  - name: Some topics
+  - name: Some topics (X labels)
     spec:
-      require: !one_of
+      require: !some_of
         - X1
         - X2
         - J2
 
-  - name: Note Worthy need one Prio label
+  - name: WIP Note Worthy need one Prio label
     id: b_need_p
     spec:
       # when:
@@ -76,7 +76,7 @@ rules:
       exclude: !all_of
         - P1
 
-  - name: Note Worthy implies no J label
+  - name: WIP Note Worthy implies no J label
     id: b_excludes_j
     spec:
       # when:

@@ -27,21 +27,41 @@ pub struct TestSpec {
 
 impl Tests {
 	pub fn run(&self, specs: Specs) {
-		log::debug!("Running tests: {}", self.name);
-		log::debug!("Using specs: {}", specs.name);
+		log::info!("Running tests: {}", self.name);
+		log::info!("Using specs: {}", specs.name);
 		if let Some(version) = &specs.version {
-			log::debug!("Using specs version: {}", version.to_string());
+			log::info!("Using specs version: {}", version.to_string());
 		}
 
-		self.specs.specs.iter().for_each(|spec| {
-			log::debug!("Running test {}", spec.name);
-			let labels: Vec<LabelId> = spec
-				.labels
-				.clone()
-				.iter()
-				.map(|s| LabelId::try_from(s.as_ref()).expect("Can parse label"))
-				.collect();
-			let _res = specs.check_labels(&labels);
+		self.specs.specs.iter().for_each(|test_spec| {
+			log::info!("Running test: {}", test_spec.name);
+			println!("▶️ Running test: {}", test_spec.name);
+			let labels: Vec<LabelId> =
+				test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
+			println!("Checking following labels:");
+			labels.iter().for_each(|label| {
+				println!(" - {}", label);
+			});
+
+			let results = specs.run_checks(&labels);
+
+			let mut results_iter = results.iter();
+			specs.rules.iter().for_each(|rule| {
+				let res = *results_iter.next().expect("We have as many results as rules");
+				println!(
+					"{} {}",
+					if let Some(r) = res {
+						if r {
+							"✅"
+						} else {
+							"❌"
+						}
+					} else {
+						"❔"
+					},
+					rule
+				);
+			});
 		});
 
 		todo!()
