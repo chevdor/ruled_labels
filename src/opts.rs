@@ -18,8 +18,9 @@ pub enum SubCommand {
 	#[clap(version = crate_version!(), author = crate_authors!())]
 	List(ListOpts),
 
-	// #[clap(version = crate_version!(), author = crate_authors!())]
-	// Lint(LintOpts),
+	#[clap(version = crate_version!(), author = crate_authors!())]
+	Lint(LintOpts),
+
 	#[clap(version = crate_version!(), author = crate_authors!())]
 	Check(CheckOpts),
 
@@ -38,13 +39,9 @@ pub struct ListOpts {
 /// Lint the rules
 #[derive(Debug, Parser)]
 pub struct LintOpts {
-	/// todo
-	#[clap(required = true, index = 1)]
-	pub repository: String,
-
-	/// todo
-	#[clap(short, long, alias("out"), parse(from_os_str))]
-	pub output: Option<PathBuf>,
+	/// Spec file
+	#[clap(index = 1, default_value = "specs.yaml")]
+	pub spec_file: String,
 }
 
 /// Check label set against the rules

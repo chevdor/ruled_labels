@@ -49,7 +49,7 @@ impl Display for Specs {
 impl Specs {
 	/// This functions loops thru all rules and check the rule outcome.
 	pub fn run_checks(&self, labels: &[LabelId]) -> Vec<Option<bool>> {
-		log::debug!("Checking {:?} labels", labels.len());
+		log::debug!("Running checks on {:?} labels", labels.len());
 		let res: Vec<Option<bool>> = self.rules.iter().map(|rule| rule.check(labels)).collect();
 		res
 	}

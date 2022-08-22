@@ -100,8 +100,11 @@ impl Rule {
 	}
 
 	pub fn check(&self, labels: &[LabelId]) -> Option<bool> {
-		log::debug!("Checking rule: {}", self);
-		log::trace!("Labels: {:?}", labels);
+		log::debug!("⚙️ Checking rule: {}", self);
+		log::trace!(
+			"Labels: {}",
+			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
+		);
 
 		// TODO: impl the when filter
 

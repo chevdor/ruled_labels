@@ -1,0 +1,103 @@
+---
+name: chevdor/glabel
+version: 0.1.0
+description: Import from chevdor/glabel
+labels:
+  - name: A1-foo
+    description: Foo
+    color: d73a4a
+  - name: A2-bar
+    description: Bar
+    color: d73a4a
+  - name: X1-frontend
+    description: Frontend
+    color: d73a4a
+  - name: X2-backend
+    description: Frontend
+    color: d73a4a
+  - name: X3-documentation
+    description: Improvements or additions to documentation
+    color: 0075ca
+  - name: P1-low_prio
+    description: Low prio
+    color: ffffff
+  - name: P2-low_prio
+    description: Low prio
+    color: ffffff
+  - name: P3-low_prio
+    description: Low prio
+    color: ffffff
+  - name: B0-silent
+    description: silent
+    color: ffffff
+  - name: B1-note_worthy
+    description: note worthy
+    color: ffffff
+  - name: B2-important
+    description: important
+    color: ffffff
+  - name: J1-junk1
+    description: junk1
+    color: ffffff
+  - name: J2-junk2
+    description: junk2
+    color: ffffff
+  - name: D1-disable1
+    description: diable1
+    color: ffffff
+
+parser:
+  id: ^(\w\d).*$     # default
+  description: ^\w\d-(.*?)$ # Optional, un-used
+
+rules:
+  - name: Exactly one visibility label
+    id: b_rules
+    description: |
+      This rule ensures we have a single visibility label.
+      It is important to void conflicts such as having a PR
+      labels as both important and unsubstantial.
+    # on: id            # default
+    spec:
+      require: !one_of
+        - B*
+      exclude: ~
+
+  - name: Some topics (X labels)
+    spec:
+      require: !some_of
+        - X1
+        - X2
+        - J2
+
+  - name: WIP Note Worthy need one Prio label
+    id: b_need_p
+    spec:
+      # when:
+      #   - J*
+      require: !one_of
+        - P*
+      exclude: !all_of
+        - P1
+
+  - name: WIP Note Worthy implies no J label
+    id: b_excludes_j
+    spec:
+      # when:
+      #   - B*
+      exclude: !all_of
+        - T*
+
+  - name: Exclude all Ds
+    disabled: false   # default
+    priority: 100         # default
+    spec:
+      exclude: !all_of
+        - D*
+
+  - name: Disabled sample
+    disabled: true   # default
+    priority: 100         # default
+    spec:
+      exclude: !none_of
+        - D*

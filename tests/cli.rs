@@ -14,6 +14,24 @@ mod cli_tests {
 	}
 
 	#[cfg(test)]
+	mod lint {
+		use assert_cmd::Command;
+
+		#[test]
+		fn it_lints_good_file() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd.arg("lint").arg("./tests/specs_ok.yaml").assert();
+			assert.success().code(0);
+		}
+		#[test]
+		fn it_lints_bad_file() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd.arg("lint").arg("./tests/specs_err.yaml").assert();
+			assert.failure().code(1);
+		}
+	}
+
+	#[cfg(test)]
 	mod list {
 		use assert_cmd::Command;
 
@@ -42,11 +60,27 @@ mod cli_tests {
 		use assert_cmd::Command;
 
 		#[test]
-		#[ignore = "todo"]
-		fn it_calls_test() {
+		fn it_tests_good() {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
-			let assert = cmd.arg("test").assert();
+			let assert = cmd
+				.arg("test")
+				.arg("./tests/tests_pass.yaml")
+				.arg("-s")
+				.arg("./tests/specs_ok.yaml")
+				.assert();
 			assert.success().code(0);
+		}
+
+		#[test]
+		fn it_tests_bad() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd
+				.arg("test")
+				.arg("tests_fail.yaml")
+				.arg("-s")
+				.arg("./tests/specs_ok.yaml")
+				.assert();
+			assert.failure().code(1);
 		}
 	}
 }

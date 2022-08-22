@@ -3,11 +3,10 @@ mod opts;
 
 use clap::{crate_name, crate_version, StructOpt};
 use env_logger::Env;
-use lib::*;
 use opts::*;
 use std::{env, error::Error, fs};
 
-use crate::lib::{parsed_label::LabelId, tests::Tests};
+use crate::lib::{parsed_label::LabelId, spec::Specs, tests::Tests};
 // use termion::{color, style};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -18,22 +17,35 @@ fn main() -> Result<(), Box<dyn Error>> {
 	match opts.subcmd {
 		SubCommand::List(cmd_opts) => {
 			log::debug!("list: {:#?}", cmd_opts);
-			let s = fs::read_to_string(cmd_opts.spec_file)?;
-			let specs: spec::Specs = serde_yaml::from_str(&s)?;
+			let spec_str = fs::read_to_string(cmd_opts.spec_file)?;
+			let specs: Specs = serde_yaml::from_str(&spec_str)?;
 			// println!("specs = {:#?}", specs);
 
 			println!("{}", specs);
 			Ok(())
 		},
-		// SubCommand::Lint(cmd_opts) => {
-		// 	log::debug!("lint: {:#?}", cmd_opts);
+		SubCommand::Lint(cmd_opts) => {
+			log::debug!("lint: {:#?}", cmd_opts);
 
-		// 	Ok(())
-		// },
+			let spec_str = fs::read_to_string(&cmd_opts.spec_file)?;
+			let specs: Result<Specs, _> = serde_yaml::from_str(&spec_str);
+
+			match specs {
+				Ok(_) => {
+					println!("✅ The file {} looks OK", cmd_opts.spec_file);
+					std::process::exit(0)
+				},
+				Err(e) => {
+					println!("❌ The file {} contains errors", cmd_opts.spec_file);
+					eprintln!("{:?}", e);
+					std::process::exit(1)
+				},
+			}
+		},
 		SubCommand::Check(cmd_opts) => {
 			log::debug!("check: {:#?}", cmd_opts);
-			let s = fs::read_to_string(cmd_opts.spec_file)?;
-			let specs: spec::Specs = serde_yaml::from_str(&s)?;
+			let spec_str = fs::read_to_string(cmd_opts.spec_file)?;
+			let specs: Specs = serde_yaml::from_str(&spec_str)?;
 
 			let label_ids: Vec<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
@@ -44,8 +56,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 		SubCommand::Test(cmd_opts) => {
 			log::debug!("test: {:#?}", cmd_opts);
 
-			let s = fs::read_to_string(cmd_opts.test_specs)?;
-			let tests: Tests = serde_yaml::from_str(&s)?;
+			let spec_str = fs::read_to_string(cmd_opts.test_specs)?;
+			let tests: Tests = serde_yaml::from_str(&spec_str)?;
 
 			let spec_file = if let Some(spec_file) = cmd_opts.spec_file {
 				spec_file
@@ -54,8 +66,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 			};
 			log::debug!("spec_file: {}", spec_file.display());
 
-			let s = fs::read_to_string(spec_file)?;
-			let specs: spec::Specs = serde_yaml::from_str(&s)?;
+			let spec_str = fs::read_to_string(spec_file)?;
+			let specs: Specs = serde_yaml::from_str(&spec_str)?;
 			// println!("tests = {:#?}", &tests);
 			// println!("specs = {:#?}", &specs);
 			tests.run(specs);

@@ -7,16 +7,16 @@ specs:
       - B1-note_worthy
       - B0-silent
       - X1-foo
-    expected: 1
+    expected: false
 
   - name: Pass
     labels:
       - B0-silent
       - X2-bar
       - X3-foobar
-    expected: 0
+    expected: true
 
   - name: Missing topics
     labels:
       - B0-silent
-    expected: 0
+    expected: true
