@@ -1,4 +1,4 @@
-use super::label_set::LabelMatchSet;
+use super::label_match_set::LabelMatchSet;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

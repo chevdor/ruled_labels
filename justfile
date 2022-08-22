@@ -19,5 +19,11 @@ run_tests:
 
 # Generate the readme as .md
 md:
-    #!/usr/bin/env bash
-    asciidoctor -b docbook -a leveloffset=+1 -o - README_src.adoc | pandoc   --markdown-headings=atx --wrap=preserve -t markdown_strict -f docbook - > README.md
+  #!/usr/bin/env bash
+  asciidoctor -b docbook -a leveloffset=+1 -o - README_src.adoc | pandoc   --markdown-headings=atx --wrap=preserve -t markdown_strict -f docbook - > README.md
+
+# Run the specs thru the tera template
+gen_doc:
+  #!/usr/bin/env bash
+  FILE=specs
+  tera $FILE.yaml -t templates/template.md.tera > $FILE.md

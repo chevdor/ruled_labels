@@ -1,4 +1,4 @@
-use super::{label_set::LabelMatchSet, parsed_label::LabelId, token_rule::TokenRule};
+use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, token_rule::TokenRule};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use Iterator;
@@ -7,7 +7,7 @@ use Iterator;
 // 	100_u8
 // }
 
-fn default_id() -> Option<String> {
+fn default_none() -> Option<String> {
 	None
 }
 
@@ -19,7 +19,10 @@ fn default_disabled() -> bool {
 pub struct Rule {
 	pub name: String,
 
-	#[serde(default = "default_id")]
+	#[serde(default = "default_none")]
+	pub description: Option<String>,
+
+	#[serde(default = "default_none")]
 	pub id: Option<String>,
 
 	#[serde(default = "default_disabled")]
@@ -243,6 +246,7 @@ impl Default for Rule {
 		let spec = RuleSpec::default();
 		Self {
 			name: "Rule".to_string(),
+			description: None,
 			id: None,
 			disabled: false,
 			// priority: 100,
@@ -277,7 +281,7 @@ mod test_label_set_spec {
 
 #[cfg(test)]
 mod test_label_set {
-	use crate::lib::{label_set::LabelMatchSet, parsed_label::LabelId};
+	use crate::lib::{label_match_set::LabelMatchSet, parsed_label::LabelId};
 
 	#[test]
 	fn test_from_single() {
@@ -314,7 +318,7 @@ mod test_label_set {
 
 #[cfg(test)]
 mod test_rule {
-	use crate::lib::{label_match::LabelMatch, label_set::LabelMatchSet};
+	use crate::lib::{label_match::LabelMatch, label_match_set::LabelMatchSet};
 
 	use super::*;
 
@@ -361,7 +365,13 @@ mod test_rule {
 		let label_set = LabelMatchSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule: Rule = Rule { name: "Foo".to_string(), spec: rs, id: None, disabled: false };
+		let rule: Rule = Rule {
+			name: "Foo".to_string(),
+			description: None,
+			spec: rs,
+			id: None,
+			disabled: false,
+		};
 
 		println!("{}", serde_yaml::to_string(&rule).unwrap());
 	}
@@ -406,10 +416,18 @@ spec:
 
 	#[test]
 	fn test_rule_check_require_none_of_true() {
-		let token_rule =
-			TokenRule::None(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::None(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
 		let res = rule.check(&vec![LabelId::from("T0"), LabelId::from("T1"), LabelId::from("T2")]);
@@ -419,10 +437,18 @@ spec:
 
 	#[test]
 	fn test_rule_check_require_none_of_false() {
-		let token_rule =
-			TokenRule::None(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::None(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
 		let res = rule.check(&vec![LabelId::from("B0"), LabelId::from("B1"), LabelId::from("B2")]);
@@ -432,55 +458,84 @@ spec:
 
 	#[test]
 	fn test_rule_check_require_one_of_true() {
-		let token_rule =
-			TokenRule::One(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::One(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
-		let res = rule.check_old(&LabelId::from("B0"), &vec![]);
+		let res = rule.check(&vec![LabelId::from("B0")]);
 
 		assert_eq!(Some(true), res);
 	}
 
 	#[test]
 	fn test_rule_check_require_one_of_false() {
-		let token_rule =
-			TokenRule::One(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::One(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
-		let res =
-			rule.check_old(&LabelId::from("B0"), &vec![LabelId::from("B1"), LabelId::from("B2")]);
+		let res = rule.check(&vec![LabelId::from("B0"), LabelId::from("B1"), LabelId::from("B2")]);
 
 		assert_eq!(Some(false), res);
 	}
 
 	#[test]
 	fn test_rule_check_require_some_of() {
-		let token_rule =
-			TokenRule::Some(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::Some(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
-		let res =
-			rule.check_old(&LabelId::from("B0"), &vec![LabelId::from("B1"), LabelId::from("B2")]);
+		let res = rule.check(&vec![LabelId::from("B0"), LabelId::from("B1"), LabelId::from("B2")]);
 
 		assert_eq!(Some(true), res);
 	}
 
 	#[test]
 	fn test_rule_check_exclude_all_of_false() {
-		let token_rule =
-			TokenRule::All(LabelMatchSet::from(vec![LabelMatch::from("B0"), LabelMatch::from("B1")]));
+		let token_rule = TokenRule::All(LabelMatchSet::from(vec![
+			LabelMatch::from("B0"),
+			LabelMatch::from("B1"),
+		]));
 		let spec = RuleSpec { exclude: Some(token_rule), require: None };
-		let rule = Rule { name: "test rule".to_string(), id: None, disabled: false, spec };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
 
 		// println!("rule = {:?}", rule);
-		let res =
-			rule.check_old(&LabelId::from("B0"), &vec![LabelId::from("B1"), LabelId::from("B2")]);
+		let res = rule.check(&vec![LabelId::from("B0"), LabelId::from("B1"), LabelId::from("B2")]);
 
 		assert_eq!(Some(false), res);
 	}

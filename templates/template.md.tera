@@ -1,0 +1,48 @@
+# Label Documentation for {{ name }}
+
+This is the documenation for `{{ name }}` version {{ version }}.
+
+It contains {{ labels | length }} labels and {{ rules | length }} rules.
+
+## Description
+
+{{ description }}
+
+## Labels: {{ labels | length }}
+
+The following list is sorted alphabetically.
+
+{% for label in labels | sort(attribute="name") -%}
+- {{ label.name }}
+{% endfor %}
+
+## Rules: {{ rules | length }}
+
+The following list is unsorted.
+
+{% for rule in rules -%}
+### {{ rule.name }}
+
+{% if rule.disabled %}
+⚠️ This rule is DISABLED.
+{% endif %}
+
+{% if rule.description %}
+{{ rule.description }}
+{% endif %}
+
+{% if rule.spec.require %}
+- Require:
+{% for pat in rule.spec.require %}
+  - {{ pat }}
+{%- endfor %}
+{% endif %}
+
+
+{% if rule.spec.exclude %}
+- Exclude:
+{% for pat in rule.spec.exclude %}
+  - {{ pat }}
+{%- endfor %}{% endif %}
+
+{% endfor %}

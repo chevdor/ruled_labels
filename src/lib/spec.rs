@@ -1,5 +1,5 @@
 use super::{
-	label_set::LabelMatchSet,
+	label_match_set::LabelMatchSet,
 	parsed_label::LabelId,
 	// parser::Parser,
 	rule::Rule,
@@ -85,7 +85,11 @@ impl Specs {
 	/// of labels. We also need to consider the case when a label is unknown to our specs.
 	/// Fro instance, if our local set contains A1 and B1 and we query about A2, A2 needs to be
 	/// added to the pre-filter set.
-	pub fn generate_label_set(&self, set: LabelMatchSet, extra: Option<Vec<LabelId>>) -> Vec<LabelId> {
+	pub fn generate_label_set(
+		&self,
+		set: LabelMatchSet,
+		extra: Option<Vec<LabelId>>,
+	) -> Vec<LabelId> {
 		let mut list_from_spec: Vec<LabelId> = self
 			.labels
 			.iter()
@@ -120,7 +124,13 @@ mod test_specs {
 		let label_set = LabelMatchSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
+		let rule = Rule {
+			name: "Foo".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec: rs,
+		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
 
@@ -152,7 +162,13 @@ mod test_specs {
 		let label_set = LabelMatchSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
-		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
+		let rule = Rule {
+			name: "Foo".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec: rs,
+		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
 
