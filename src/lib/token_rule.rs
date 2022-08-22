@@ -1,4 +1,4 @@
-use super::label_set::LabelSet;
+use super::label_set::LabelMatchSet;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -8,18 +8,18 @@ use serde::{Deserialize, Serialize};
 pub enum TokenRule {
 	/// None from the set
 	#[serde(rename = "none_of")]
-	None(LabelSet),
+	None(LabelMatchSet),
 
 	/// A single one from the set
 	#[serde(rename = "one_of")]
-	One(LabelSet),
+	One(LabelMatchSet),
 
 	/// Any number from the set, at least one and
 	/// up to the full set
 	#[serde(rename = "some_of")]
-	Some(LabelSet),
+	Some(LabelMatchSet),
 
 	/// All of those in the set
 	#[serde(rename = "all_of")]
-	All(LabelSet),
+	All(LabelMatchSet),
 }

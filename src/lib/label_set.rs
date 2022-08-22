@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 /// A Vec of `LabelMatch`
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct LabelSet(Vec<LabelMatch>);
+pub struct LabelMatchSet(Vec<LabelMatch>);
 
-impl LabelSet {
+impl LabelMatchSet {
 	/// Check whether the passed `LabelId` matches at least one
 	/// item in the `LabelSet`. If it matches it returns a tupple
 	/// made of the matching status as boolean as well as the list of
@@ -53,7 +53,7 @@ impl LabelSet {
 // 	}
 // }
 
-impl From<Vec<LabelMatch>> for LabelSet {
+impl From<Vec<LabelMatch>> for LabelMatchSet {
 	fn from(lm: Vec<LabelMatch>) -> Self {
 		Self(lm)
 	}
@@ -61,7 +61,7 @@ impl From<Vec<LabelMatch>> for LabelSet {
 
 /// Conversion from a comma, separated list of `LabelMatch` such as
 /// "A1,B2,C*".
-impl From<&str> for LabelSet {
+impl From<&str> for LabelMatchSet {
 	fn from(s: &str) -> Self {
 		let res: Vec<LabelMatch> = s
 			.split(',')
@@ -71,12 +71,12 @@ impl From<&str> for LabelSet {
 				LabelMatch::from(cleaned.as_str())
 			})
 			.collect();
-		LabelSet::from(res)
+		LabelMatchSet::from(res)
 	}
 }
 
 #[cfg(test)]
-impl Default for LabelSet {
+impl Default for LabelMatchSet {
 	fn default() -> Self {
 		Self(vec![LabelMatch::from("B1"), LabelMatch::from("B2")])
 	}
@@ -88,7 +88,7 @@ mod test_label_set {
 
 	#[test]
 	fn test_label_set_from_str_single() {
-		let set = LabelSet::from("B1");
+		let set = LabelMatchSet::from("B1");
 		let first = set.0.first().unwrap();
 		assert_eq!(1, set.len());
 		assert_eq!(&LabelMatch::from("B1"), first);
@@ -96,7 +96,7 @@ mod test_label_set {
 
 	#[test]
 	fn test_label_set_from_str_multiple() {
-		let set = LabelSet::from("B1,B2");
+		let set = LabelMatchSet::from("B1,B2");
 		let first = set.0.first().unwrap();
 		assert_eq!(2, set.len());
 		assert_eq!(&LabelMatch::from("B1"), first);
@@ -104,7 +104,7 @@ mod test_label_set {
 
 	#[test]
 	fn test_label_set_from_str_multiple_spaces() {
-		let set = LabelSet::from(" B1,  B2");
+		let set = LabelMatchSet::from(" B1,  B2");
 		let first = set.0.first().unwrap();
 		let second = set.0.iter().nth(1).unwrap();
 		assert_eq!(2, set.len());
@@ -114,12 +114,12 @@ mod test_label_set {
 
 	#[test]
 	fn test_matches() {
-		assert!(LabelSet::default().matches(&LabelId::from("B1")).0);
+		assert!(LabelMatchSet::default().matches(&LabelId::from("B1")).0);
 	}
 
 	#[test]
 	fn test_matches_one() {
-		assert!(LabelSet::default().matches_one(&vec![LabelId::from("B1")]));
+		assert!(LabelMatchSet::default().matches_one(&vec![LabelId::from("B1")]));
 	}
 
 	#[test]
@@ -127,6 +127,6 @@ mod test_label_set {
 		let b1 = LabelId::from("B1");
 		let b2 = LabelId::from("B2");
 		let ids = &vec![b1, b2];
-		assert!(LabelSet::default().matches_all(ids));
+		assert!(LabelMatchSet::default().matches_all(ids));
 	}
 }

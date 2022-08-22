@@ -1,5 +1,5 @@
 use super::{
-	label_set::LabelSet,
+	label_set::LabelMatchSet,
 	parsed_label::LabelId,
 	// parser::Parser,
 	rule::Rule,
@@ -85,7 +85,7 @@ impl Specs {
 	/// of labels. We also need to consider the case when a label is unknown to our specs.
 	/// Fro instance, if our local set contains A1 and B1 and we query about A2, A2 needs to be
 	/// added to the pre-filter set.
-	pub fn generate_label_set(&self, set: LabelSet, extra: Option<Vec<LabelId>>) -> Vec<LabelId> {
+	pub fn generate_label_set(&self, set: LabelMatchSet, extra: Option<Vec<LabelId>>) -> Vec<LabelId> {
 		let mut list_from_spec: Vec<LabelId> = self
 			.labels
 			.iter()
@@ -117,7 +117,7 @@ mod test_specs {
 	#[test]
 	fn test_spec_serialize() {
 		let label_match = LabelMatch::from("B1");
-		let label_set = LabelSet::from(vec![label_match]);
+		let label_set = LabelMatchSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
@@ -149,7 +149,7 @@ mod test_specs {
 	#[test]
 	fn test_spec_ser_then_de() {
 		let label_match = LabelMatch::from("B1");
-		let label_set = LabelSet::from(vec![label_match]);
+		let label_set = LabelMatchSet::from(vec![label_match]);
 		let token_rule = TokenRule::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule { name: "Foo".to_string(), id: None, disabled: false, spec: rs };
@@ -178,7 +178,7 @@ mod test_specs {
 	fn test_generate_labet_set_none() {
 		let s = fs::read_to_string(SPEC_FILE).unwrap();
 		let specs: Specs = serde_yaml::from_str(&s).unwrap();
-		let label_set = LabelSet::from("A1,A2,B*");
+		let label_set = LabelMatchSet::from("A1,A2,B*");
 		let set = specs.generate_label_set(label_set, None);
 		// let target =LabelSet::from("A1", "A2", "B0", "B1", "B2")
 
@@ -198,7 +198,7 @@ mod test_specs {
 	fn test_generate_labet_set_some() {
 		let s = fs::read_to_string(SPEC_FILE).unwrap();
 		let specs: Specs = serde_yaml::from_str(&s).unwrap();
-		let label_set = LabelSet::from("A1,A2,B*,T*");
+		let label_set = LabelMatchSet::from("A1,A2,B*,T*");
 		let extra = Some(vec![LabelId::try_from("T9").unwrap()]);
 		let set = specs.generate_label_set(label_set, extra);
 
