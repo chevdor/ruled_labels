@@ -1,7 +1,13 @@
 mod lib;
 mod opts;
 
-use crate::lib::{parsed_label::LabelId, spec::Specs, tests::Tests};
+use crate::lib::{
+	parsed_label::LabelId,
+	rule::Rule,
+	spec::Specs,
+	test_result::{ResultPrinter, TestResult},
+	tests::Tests,
+};
 use clap::{crate_name, crate_version, StructOpt};
 use env_logger::Env;
 use opts::*;
@@ -43,14 +49,37 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 		SubCommand::Check(cmd_opts) => {
 			log::debug!("check: {:#?}", cmd_opts);
-			let spec_str = fs::read_to_string(cmd_opts.spec_file)?;
+			let spec_str = fs::read_to_string(&cmd_opts.spec_file)?;
 			let specs: Specs = serde_yaml::from_str(&spec_str)?;
 
 			let label_ids: Vec<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
 			let res = specs.run_checks(&label_ids, true);
-			println!("{:?}", res);
-			Ok(())
+			let aggregated_result = res.iter().fold(true, |acc, x| match x {
+				Some(v) => acc && *v,
+				None => acc,
+			});
+
+			let faulty_rules: Vec<&Rule> = specs.find_faulty(res);
+			// println!("faulty_rules = {:?}", faulty_rules);
+			if !faulty_rules.is_empty() {
+				println!("faulty_rules:");
+				faulty_rules.iter().for_each(|rule| println!("{:#?}", rule));
+			}
+
+			let title = format!(
+				"{} v{} for labels {}",
+				specs.name,
+				specs.version,
+				label_ids.iter().map(|l| l.to_string()).collect::<Vec<String>>().join(", ")
+			);
+			ResultPrinter::new(&title, TestResult::from(aggregated_result)).print();
+
+			if aggregated_result {
+				std::process::exit(0)
+			} else {
+				std::process::exit(1)
+			}
 		},
 
 		SubCommand::Test(cmd_opts) => {

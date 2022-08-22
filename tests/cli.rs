@@ -50,14 +50,20 @@ mod cli_tests {
 		#[test]
 		fn it_calls_check_and_pass() {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
-			let assert = cmd.arg("check").arg("-l").arg("B1").arg("B2").assert();
+			let assert = cmd
+				.arg("check")
+				.arg("./tests/specs_ok.yaml")
+				.arg("-l")
+				.arg("B1")
+				.arg("X9")
+				.assert();
 			assert.success().code(0);
 		}
 
 		#[test]
 		fn it_calls_check_and_fail() {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
-			let assert = cmd.arg("check").arg("-l").arg("B0").assert();
+			let assert = cmd.arg("check").arg("./tests/specs_ok.yaml").arg("-l").arg("B0").assert();
 			assert.failure().code(1);
 		}
 	}

@@ -14,7 +14,7 @@ use std::fmt::Display;
 pub struct Specs {
 	pub name: String,
 	pub description: String,
-	pub version: Option<Version>,
+	pub version: Version,
 	pub labels: Vec<Label>,
 
 	// The following ends up not being used
@@ -100,6 +100,33 @@ impl Specs {
 		res
 	}
 
+	/// The passed argument contains a Vec of test status. This functions returns
+	/// references to the faulty rules. This is used to show up more information to the user.
+	pub fn find_faulty(&self, res: Vec<Option<bool>>) -> Vec<&Rule> {
+		log::trace!("results: {:?}", res);
+
+		let mut rule_iter = self.rules.iter();
+		let result: Vec<&Rule> = res
+			.iter()
+			.map(|r| {
+				let rule = rule_iter.next().expect("We expect to have as many rules as results");
+				if let Some(rr) = r {
+					if *rr == false {
+						Some(rule)
+					} else {
+						None
+					}
+				} else {
+					None
+				}
+			})
+			.filter(|elem| elem.is_some())
+			.map(|elem| elem.unwrap())
+			.collect();
+
+		result
+	}
+
 	/// This functions loops thru all non disabled rules and check the rule outcome.
 	/// DEPRECATED
 	// pub fn check_label(&self, label: &LabelId, against: &Vec<LabelId>) -> Result<(), String> {
@@ -183,7 +210,7 @@ mod test_specs {
 		let specs: Specs = Specs {
 			name: "Foo".to_string(),
 			description: "desc".to_string(),
-			version: None,
+			version: Version::new(0, 1, 0),
 			labels: vec![],
 			// parser: Parser::default(),
 			rules,
@@ -221,7 +248,7 @@ mod test_specs {
 		let specs: Specs = Specs {
 			name: "Foo".to_string(),
 			description: "desc".to_string(),
-			version: None,
+			version: Version::new(0, 1, 0),
 			labels: vec![],
 			// parser: Parser::default(),
 			rules,

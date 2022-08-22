@@ -39,9 +39,7 @@ impl Tests {
 		log::info!("Running tests: {}", self.name);
 		log::info!("Found {:?} tests", tests_count);
 		log::info!("Using specs: {}", specs.name);
-		if let Some(version) = &specs.version {
-			log::info!("Using specs version: {}", version.to_string());
-		}
+		log::info!("Using specs version: {}", specs.version.to_string());
 
 		// Iterate thru all the test specs
 		let overall_result = self
