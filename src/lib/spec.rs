@@ -1,3 +1,5 @@
+use crate::lib::test_result::{ResultPrinter, TestResult};
+
 use super::{
 	label_match_set::LabelMatchSet,
 	parsed_label::LabelId,
@@ -48,9 +50,53 @@ impl Display for Specs {
 
 impl Specs {
 	/// This functions loops thru all rules and check the rule outcome.
-	pub fn run_checks(&self, labels: &[LabelId]) -> Vec<Option<bool>> {
-		log::debug!("Running checks on {:?} labels", labels.len());
-		let res: Vec<Option<bool>> = self.rules.iter().map(|rule| rule.check(labels)).collect();
+	pub fn run_checks(&self, labels: &[LabelId], run_skipped: bool) -> Vec<Option<bool>> {
+		println!(
+			"      Running checks on {:?} labels: {}",
+			labels.len(),
+			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
+		);
+		const WIDTH: usize = 8;
+
+		let res: Vec<Option<bool>> = self
+			.rules
+			.iter()
+			.filter(|rule| !rule.disabled || run_skipped)
+			.map(|rule| {
+				let check_result = rule.check(labels);
+				ResultPrinter::new(&rule.name, TestResult::from(check_result))
+					.with_indent(8)
+					.print();
+				// let status = if let Some(r) = check_result {
+				// 	if r {
+				// 		format!(
+				// 			"{}{:>WIDTH$}{}",
+				// 			color::Fg(color::Green),
+				// 			"PASS",
+				// 			color::Fg(color::Reset)
+				// 		)
+				// 	} else {
+				// 		format!(
+				// 			"{}{:>WIDTH$}{}",
+				// 			color::Fg(color::Red),
+				// 			"FAIL",
+				// 			color::Fg(color::Reset)
+				// 		)
+				// 	}
+				// } else {
+				// 	format!(
+				// 		"{}{:>WIDTH$}{}",
+				// 		color::Fg(color::Cyan),
+				// 		"SKIPPED",
+				// 		color::Fg(color::Reset)
+				// 	)
+				// };
+
+				// println!("{} {}", status, rule.name);
+				check_result
+			})
+			.collect();
+		// println!("{}", color::Fg(color::Reset));
 		res
 	}
 

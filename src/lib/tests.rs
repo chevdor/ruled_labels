@@ -1,4 +1,7 @@
-use crate::lib::parsed_label::LabelId;
+use crate::lib::{
+	parsed_label::LabelId,
+	test_result::{ResultPrinter, TestResult},
+};
 
 use super::spec::Specs;
 use serde::Deserialize;
@@ -47,62 +50,47 @@ impl Tests {
 			.iter()
 			.map(|test_spec| {
 				test_index += 1;
-				// log::info!("Running test: {}", test_spec.name);
 				println!(
-					"\n ▶️  Running test {:>2?}/{:<2?}: {}",
+					"\n    ▶️ Running test {:>2?}/{:<2?}: {}",
 					test_index, tests_count, test_spec.name
 				);
 				let labels: Vec<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
-				println!(
-					"  ℹ️  Checking following labels: {}",
-					labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
-				);
+				// println!(
+				// 	"  ℹ️  Checking following labels: {}",
+				// 	labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
+				// );
 
-				let results = specs.run_checks(&labels);
+				let results = specs.run_checks(&labels, true);
 
-				let mut results_iter = results.iter();
-				let aggregated_result = specs
-					.rules
-					.iter()
-					.map(|rule| {
-						let res = *results_iter.next().expect("We have as many results as rules");
-						println!(
-							"{} {}",
-							if let Some(r) = res {
-								if r {
-									"   ✅"
-								} else {
-									"   ❌"
-								}
-							} else {
-								"   ⏸️ "
-							},
-							rule
-						);
-						res
-					})
-					.fold(true, |acc, x| match x {
-						Some(v) => acc && v,
-						None => acc,
-					});
+				let aggregated_result = results.iter().fold(true, |acc, x| match x {
+					Some(v) => acc && *v,
+					None => acc,
+				});
+
 				log::debug!("aggregated result for the test: {:?}", aggregated_result);
 				log::debug!("expected   result for the test: {:?}", test_spec.expected);
-				if test_spec.expected == aggregated_result {
-					println!("  ✅ Test PASS");
-				} else {
-					println!("  ❌ Test FAIL");
-				}
+
+				ResultPrinter::new(
+					&test_spec.name,
+					TestResult::from(test_spec.expected == aggregated_result),
+				)
+				.with_indent(4)
+				.print();
 
 				test_spec.expected == aggregated_result
 			})
 			.all(|x| x);
-		if overall_result {
-			println!("✅ All tests PASS");
-			std::process::exit(0)
-		} else {
-			println!("❌ Some tests FAIL");
-			std::process::exit(1)
+
+		let result = TestResult::from(overall_result);
+		ResultPrinter::new("OVERALL", result.clone())
+			.with_message_passed("All Tests passed")
+			.with_message_failed("Some tests failed")
+			.print();
+
+		match result {
+			TestResult::Passed => std::process::exit(0),
+			_ => std::process::exit(1),
 		}
 	}
 }

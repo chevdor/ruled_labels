@@ -9,5 +9,6 @@ pub mod parser;
 pub mod rule;
 pub mod rules;
 pub mod spec;
+pub mod test_result;
 pub mod tests;
 pub mod token_rule;
