@@ -11,7 +11,7 @@ use crate::lib::{
 use clap::{crate_name, crate_version, StructOpt};
 use env_logger::Env;
 use opts::*;
-use std::{env, error::Error, fs};
+use std::{env, error::Error};
 
 fn main() -> Result<(), Box<dyn Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
@@ -21,8 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 	match opts.subcmd {
 		SubCommand::List(cmd_opts) => {
 			log::debug!("list: {:#?}", cmd_opts);
-			let spec_str = fs::read_to_string(cmd_opts.spec_file)?;
-			let specs: Specs = serde_yaml::from_str(&spec_str)?;
+			let specs = Specs::load(&cmd_opts.spec_file)?;
 
 			println!("{}", specs);
 			Ok(())
@@ -30,9 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 		SubCommand::Lint(cmd_opts) => {
 			log::debug!("lint: {:#?}", cmd_opts);
-
-			let spec_str = fs::read_to_string(&cmd_opts.spec_file)?;
-			let specs: Result<Specs, _> = serde_yaml::from_str(&spec_str);
+			let specs: Result<Specs, _> = Specs::load(&cmd_opts.spec_file);
 
 			match specs {
 				Ok(_) => {
@@ -49,8 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 		SubCommand::Check(cmd_opts) => {
 			log::debug!("check: {:#?}", cmd_opts);
-			let spec_str = fs::read_to_string(&cmd_opts.spec_file)?;
-			let specs: Specs = serde_yaml::from_str(&spec_str)?;
+			let specs: Specs = Specs::load(&cmd_opts.spec_file)?;
 
 			let label_ids: Vec<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
@@ -84,9 +80,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 		SubCommand::Test(cmd_opts) => {
 			log::debug!("test: {:#?}", cmd_opts);
-
-			let spec_str = fs::read_to_string(&cmd_opts.test_specs)?;
-			let tests: Tests = serde_yaml::from_str(&spec_str)?;
+			let tests = Tests::load(&cmd_opts.test_specs)?;
 
 			let spec_file = if let Some(spec_file) = cmd_opts.spec_file {
 				spec_file
@@ -94,19 +88,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 				tests.spec_file.clone()
 			};
 			log::debug!("spec_file: {}", spec_file.display());
-
-			let spec_str = fs::read_to_string(&spec_file)?;
-			let specs: Specs = serde_yaml::from_str(&spec_str)?;
+			let specs = Specs::load(&spec_file.display().to_string())?;
 
 			println!("Tests specs: {}", &cmd_opts.test_specs);
 			println!("Specs file : {}", &spec_file.display());
-			println!(
-				"Running {:?} test cases on your {:?} rules",
-				tests.specs.specs.len(),
-				specs.rules.len()
-			);
 
-			tests.run(specs);
+			// TODO: The following is erroneous as it does not consider `only` and `all`
+			// println!(
+			// 	"Running {:?} test cases on your {:?} rules",
+			// 	tests.specs.specs.len(),
+			// 	specs.rules.len()
+			// );
+
+			tests.run(specs, cmd_opts.only, cmd_opts.all);
 			Ok(())
 		},
 	}

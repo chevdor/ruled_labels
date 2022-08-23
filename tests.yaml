@@ -3,6 +3,7 @@ spec_file: specs.yaml
 
 specs:
   - name: Fail
+    skip: true
     labels:
       - B1-note_worthy
       - B0-silent
@@ -10,13 +11,16 @@ specs:
     expected: false
 
   - name: Pass
+    only: true
     labels:
       - B0-silent
+      - X1-bar
       - X2-bar
       - X3-foobar
     expected: true
 
   - name: Missing topics
+    skip: true
     labels:
       - B0-silent
     expected: false

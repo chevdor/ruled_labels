@@ -98,47 +98,30 @@ rules:
     disabled: true   # default
     priority: 100         # default
     spec:
-      exclude: !none_of
+      exclude: !all_of
         - D*
 
   - name: Require none of D
     spec:
-      exclude: !one_of
+      require: !none_of
         - D*
 
-  - name: Require one B
+  - name: Require one (and only one) B
     spec:
-      exclude: !one_of
+      require: !one_of
         - B*
 
   - name: Require some of X
     spec:
-      exclude: !one_of
-        - D*
+      require: !some_of
+        - X*
 
   - name: Require all of X
     spec:
-      exclude: !one_of
-        - J*
+      require: !all_of
+        - X*
 
-  - name: Exclude none of X
-    description: This rule pretty much does nothing useful...
+  - name: Exclude all of D
     spec:
-      exclude: !one_of
-        - J*
-
-  - name: Exclude one of X
-    description: Another not super useful rule...
-    spec:
-      exclude: !one_of
-        - D1
-
-  - name: Exclude some of X
-    spec:
-      exclude: !one_of
-        - D1
-
-  - name: Exclude all of X
-    spec:
-      exclude: !one_of
+      exclude: !all_of
         - D*

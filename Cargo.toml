@@ -3,6 +3,10 @@ name = "ruled-labels"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = 'rl'
+path = 'src/main.rs'
+
 [dependencies]
 clap = { version = "3.2", features = ["derive", "env", "unicode", "cargo"] }
 env_logger = "0.9"
@@ -15,6 +19,7 @@ termion = "1.5"
 # tokio = { version = "=0.2", features = ["full"] }
 semver = { version = "1.0", features = ["serde"] }
 regex = "1"
+anyhow = "1.0"
 
 [dev-dependencies]
 assert_cmd = "2.0"

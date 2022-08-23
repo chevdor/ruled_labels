@@ -70,13 +70,16 @@ rules:
         - X2
         - J2
 
-  - name: WIP Note Worthy need one Prio label
+  - name: Note Worthy need one Prio label
     id: b_need_p
     spec:
-      # when:
-      #   - J*
+      # when we have one of the B labels
+      when: !one_of
+        - B*
+      # we need exactly one of the P labels
       require: !one_of
         - P*
+      # but we don't want the P1 labels
       exclude: !all_of
         - P1
 
@@ -95,9 +98,7 @@ rules:
       exclude: !all_of
         - D*
 
-  - name: Disabled sample
-    disabled: true   # default
-    priority: 100         # default
+  - name: Require all of J
     spec:
-      exclude: !none_of
-        - D*
+      require: !all_of
+        - J*

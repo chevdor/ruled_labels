@@ -1,4 +1,12 @@
 use crate::lib::test_result::{ResultPrinter, TestResult};
+use anyhow::{Context, Result};
+
+pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
+
+// pub trait RefSpecs {
+// 		/// After deserializing, we need to pass a ref to our specs down the stuct tree
+// 	fn attach_ref(self) -> Self;
+// }
 
 use super::{
 	label_match_set::LabelMatchSet,
@@ -8,10 +16,10 @@ use super::{
 };
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use std::{fmt::Display, fs, path::PathBuf};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Specs {
+pub struct Specs<'a> {
 	pub name: String,
 	pub description: String,
 	pub version: Version,
@@ -21,7 +29,7 @@ pub struct Specs {
 	// pub parser: Parser,
 
 	// #[serde(flatten)]
-	pub rules: Vec<Rule>,
+	pub rules: Vec<Rule<'a>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,7 +39,7 @@ pub struct Label {
 	pub color: String,
 }
 
-impl Display for Specs {
+impl<'a> Display for Specs<'a> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.write_fmt(format_args!("name: {}\n", self.name))?;
 		f.write_fmt(format_args!("desc: {}\n", self.description))?;
@@ -48,7 +56,25 @@ impl Display for Specs {
 	}
 }
 
-impl Specs {
+impl<'a> Specs<'a> {
+	pub fn load(file_path: &str) -> Result<Self> {
+		let s = fs::read_to_string(PathBuf::from(file_path))?;
+		let res = serde_yaml::from_str::<Self>(&s)
+			.with_context(|| format!("Failed deserializing specs from {}", file_path))?;
+
+		Ok(res.attach_ref())
+	}
+
+	pub fn load_default() -> Result<Self> {
+		Self::load(DEFAULT_SPEC_FILE)
+	}
+
+	/// Our sub types need to access a ref of the specs
+	fn attach_ref(self) -> Self {
+		self.rules.iter().for_each(|rule| rule.attach_ref(&self));
+		self
+	}
+
 	/// This functions loops thru all rules and check the rule outcome.
 	pub fn run_checks(&self, labels: &[LabelId], run_skipped: bool) -> Vec<Option<bool>> {
 		println!(
@@ -108,10 +134,23 @@ impl Specs {
 		let mut rule_iter = self.rules.iter();
 		let result: Vec<&Rule> = res
 			.iter()
-			.map(|r| {
+			// .map(|r| {
+			// 	let rule = rule_iter.next().expect("We expect to have as many rules as results");
+			// 	if let Some(rr) = r {
+			// 		if !(*rr) {
+			// 			Some(rule)
+			// 		} else {
+			// 			None
+			// 		}
+			// 	} else {
+			// 		None
+			// 	}
+			// })
+			// .flatten()
+			.filter_map(|r| {
 				let rule = rule_iter.next().expect("We expect to have as many rules as results");
 				if let Some(rr) = r {
-					if *rr == false {
+					if !(*rr) {
 						Some(rule)
 					} else {
 						None
@@ -120,8 +159,8 @@ impl Specs {
 					None
 				}
 			})
-			.filter(|elem| elem.is_some())
-			.map(|elem| elem.unwrap())
+			// .filter(|elem| elem.is_some())
+			// .map(|elem| elem.unwrap())
 			.collect();
 
 		result
@@ -185,7 +224,7 @@ impl Specs {
 
 #[cfg(test)]
 mod test_specs {
-	use crate::lib::{label_match::LabelMatch, rule::*, token_rule::TokenRule};
+	use crate::lib::{rule::*, token_rule::*};
 	use std::fs;
 
 	use super::*;
@@ -193,9 +232,8 @@ mod test_specs {
 
 	#[test]
 	fn test_spec_serialize() {
-		let label_match = LabelMatch::from("B1");
-		let label_set = LabelMatchSet::from(vec![label_match]);
-		let token_rule = TokenRule::One(label_set);
+		let label_set = LabelMatchSet::from_str("B1");
+		let token_rule = TokenRuleRequire::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule {
 			name: "Foo".to_string(),
@@ -203,6 +241,7 @@ mod test_specs {
 			id: None,
 			disabled: false,
 			spec: rs,
+			specs_ref: None,
 		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
@@ -231,9 +270,8 @@ mod test_specs {
 
 	#[test]
 	fn test_spec_ser_then_de() {
-		let label_match = LabelMatch::from("B1");
-		let label_set = LabelMatchSet::from(vec![label_match]);
-		let token_rule = TokenRule::One(label_set);
+		let label_set = LabelMatchSet::from_str("B1");
+		let token_rule = TokenRuleRequire::One(label_set);
 		let rs = RuleSpec { require: Some(token_rule), exclude: None };
 		let rule = Rule {
 			name: "Foo".to_string(),
@@ -241,6 +279,7 @@ mod test_specs {
 			id: None,
 			disabled: false,
 			spec: rs,
+			specs_ref: None,
 		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
@@ -264,10 +303,10 @@ mod test_specs {
 	}
 
 	#[test]
-	fn test_generate_labet_set_none() {
+	fn test_generate_label_set_none() {
 		let s = fs::read_to_string(SPEC_FILE).unwrap();
 		let specs: Specs = serde_yaml::from_str(&s).unwrap();
-		let label_set = LabelMatchSet::from("A1,A2,B*");
+		let label_set = LabelMatchSet::from_str("A1,A2,B*");
 		let set = specs.generate_label_set(label_set, None);
 		// let target =LabelSet::from("A1", "A2", "B0", "B1", "B2")
 
@@ -284,10 +323,10 @@ mod test_specs {
 	}
 
 	#[test]
-	fn test_generate_labet_set_some() {
+	fn test_generate_label_set_some() {
 		let s = fs::read_to_string(SPEC_FILE).unwrap();
 		let specs: Specs = serde_yaml::from_str(&s).unwrap();
-		let label_set = LabelMatchSet::from("A1,A2,B*,T*");
+		let label_set = LabelMatchSet::from_str("A1,A2,B*,T*");
 		let extra = Some(vec![LabelId::try_from("T9").unwrap()]);
 		let set = specs.generate_label_set(label_set, extra);
 

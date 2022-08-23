@@ -10,13 +10,21 @@ specs:
     expected: false
 
   - name: Pass
+    only: true
     labels:
       - B0-silent
+      - X1-bar
       - X2-bar
       - X3-foobar
     expected: true
 
   - name: Missing topics
+    skip: true
+    description: |
+      We expect to fail here as we are not passing any X label
     labels:
       - B0-silent
+      - X1-bar
+      - X2-bar
+      - X3-foobar
     expected: false

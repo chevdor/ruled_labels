@@ -66,4 +66,12 @@ pub struct TestOpts {
 	/// The spec is usually defined in the test file but you may override it
 	#[clap(long, short)]
 	pub spec_file: Option<PathBuf>,
+
+	/// Only run the tests marked with only = true
+	#[clap(long, conflicts_with = "all")]
+	pub only: bool,
+
+	/// Run ALL tests, even those marked as skip
+	#[clap(long)]
+	pub all: bool,
 }
