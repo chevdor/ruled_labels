@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 
 use super::spec::Specs;
 use serde::Deserialize;
-use std::{fs, path::PathBuf};
+use std::{collections::HashSet, fs, path::PathBuf};
 
 #[derive(Debug, Deserialize)]
 pub struct Tests {
@@ -94,7 +94,7 @@ impl Tests {
 				// 	test_index, tests_count, test_spec.name
 				// );
 				println!("\n    ▶️ Running test {:>2?}: {}", test_index, test_spec.name);
-				let labels: Vec<LabelId> =
+				let labels: HashSet<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
 				// println!(
 				// 	"  ℹ️  Checking following labels: {}",

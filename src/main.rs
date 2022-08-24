@@ -11,7 +11,7 @@ use crate::lib::{
 use clap::{crate_name, crate_version, StructOpt};
 use env_logger::Env;
 use opts::*;
-use std::{env, error::Error};
+use std::{collections::HashSet, env, error::Error};
 
 fn main() -> Result<(), Box<dyn Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 			log::debug!("check: {:#?}", cmd_opts);
 			let specs: Specs = Specs::load(&cmd_opts.spec_file)?;
 
-			let label_ids: Vec<LabelId> =
+			let label_ids: HashSet<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
 			let res = specs.run_checks(&label_ids, true);
 			let aggregated_result = res.iter().fold(true, |acc, x| match x {

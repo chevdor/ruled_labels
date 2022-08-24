@@ -1,11 +1,12 @@
 use super::parsed_label::LabelId;
+use std::collections::HashSet;
 
 /// A convenience struct to create a `Vec<LabelId>` from a comma
 /// spearated string.
 pub struct LabelIdSet;
 
 impl LabelIdSet {
-	pub fn from_str(s: &str) -> Vec<LabelId> {
+	pub fn from_str(s: &str) -> HashSet<LabelId> {
 		s.split(',')
 			.map(|s| {
 				let cleaned: String = s.chars().filter(|c| !c.is_whitespace()).collect();

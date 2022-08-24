@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// An type to describe one or a set of Labels
 /// either specifying it or providing a regexp matching several
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct LabelMatch(String);
 
 impl LabelMatch {

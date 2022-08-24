@@ -1,15 +1,14 @@
 use super::{label_match::LabelMatch, parsed_label::LabelId, spec::Specs};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 /// A Vec of `LabelMatch`
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct LabelMatchSet {
-	list: Vec<LabelMatch>,
-}
+pub struct LabelMatchSet(HashSet<LabelMatch>);
 
 impl LabelMatchSet {
 	pub fn from_str(s: &str) -> Self {
-		let res: Vec<LabelMatch> = s
+		let res: HashSet<LabelMatch> = s
 			.split(',')
 			.map(|s| {
 				let cleaned: String = s.chars().filter(|c| !c.is_whitespace()).collect();
@@ -19,8 +18,8 @@ impl LabelMatchSet {
 		LabelMatchSet::from_vec(res)
 	}
 
-	fn from_vec(label_matches: Vec<LabelMatch>) -> Self {
-		Self { list: label_matches }
+	fn from_vec(label_matches: HashSet<LabelMatch>) -> Self {
+		Self(label_matches)
 	}
 
 	/// Check whether the passed `LabelId` matches at least one
@@ -28,38 +27,41 @@ impl LabelMatchSet {
 	/// made of the matching status as boolean as well as the list of
 	/// matching patterns.
 	pub fn matches(&self, id: &LabelId) -> (bool, Option<Vec<&LabelMatch>>) {
-		let matches: Vec<&LabelMatch> = self.list.iter().filter(|pat| pat.matches(id)).collect();
+		let matches: Vec<&LabelMatch> = self.0.iter().filter(|pat| pat.matches(id)).collect();
 		let status = !matches.is_empty();
 		let matches = if !matches.is_empty() { Some(matches) } else { None };
 		(status, matches)
 	}
 
-	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_none(&self, ids: &[LabelId], specs: &Specs) -> bool {
-		todo!()
-	}
+	// /// Returns true if one of the passed `LabelId` matches items in the set.
+	// pub fn matches_none(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
+	// 	let augmented_label_set = specs.generate_label_set(self, None);
+	// 	println!("augmented_label_set = {:?}", augmented_label_set);
+
+	// 	todo!()
+	// }
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_one(&self, ids: &[LabelId], specs: &Specs) -> bool {
+	pub fn matches_one(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
 		let hits = ids.iter().filter(|&id| self.matches(id).0);
 		hits.count() == 1
 	}
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_some(&self, ids: &[LabelId], specs: &Specs) -> bool {
+	pub fn matches_some(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
 		let hits = ids.iter().filter(|&id| self.matches(id).0);
 		hits.count() >= 1
 	}
 
 	/// Returns true if ALL of the passed `LabelId` matches the items in the set.
-	pub fn matches_all(&self, ids: &[LabelId], specs: &Specs) -> bool {
+	pub fn matches_all(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
 		println!("matches_all");
 		let hits = ids.iter().filter(|&&id| self.matches(&id).0);
-		hits.count() == self.list.len()
+		hits.count() == self.0.len()
 	}
 
 	pub fn len(&self) -> usize {
-		self.list.len()
+		self.0.len()
 	}
 }
 
@@ -67,7 +69,7 @@ impl LabelMatchSet {
 // 	type Item = LabelMatch;
 
 // 	fn next(&mut self) -> Option<Self::Item> {
-// 		let mut iter = self.list.iter();
+// 		let mut iter = self.0.iter();
 // 		println!("next...");
 // 		match iter.next() {
 // 			None => None,
@@ -101,7 +103,7 @@ impl LabelMatchSet {
 #[cfg(test)]
 impl Default for LabelMatchSet {
 	fn default() -> Self {
-		Self { list: vec![LabelMatch::from("B1"), LabelMatch::from("B2")] }
+		Self(HashSet::from([LabelMatch::from("B1"), LabelMatch::from("B2")]))
 	}
 }
 
@@ -114,7 +116,7 @@ mod test_label_set {
 	#[test]
 	fn test_label_set_from_str_single() {
 		let set = LabelMatchSet::from_str("B1");
-		let first = set.list.first().unwrap();
+		let first = set.0.iter().next().unwrap();
 		assert_eq!(1, set.len());
 		assert_eq!(&LabelMatch::from("B1"), first);
 	}
@@ -122,7 +124,7 @@ mod test_label_set {
 	#[test]
 	fn test_label_set_from_str_multiple() {
 		let set = LabelMatchSet::from_str("B1,B2");
-		let first = set.list.first().unwrap();
+		let first = set.0.iter().next().unwrap();
 		assert_eq!(2, set.len());
 		assert_eq!(&LabelMatch::from("B1"), first);
 	}
@@ -130,8 +132,8 @@ mod test_label_set {
 	#[test]
 	fn test_label_set_from_str_multiple_spaces() {
 		let set = LabelMatchSet::from_str(" B1,  B2");
-		let first = set.list.first().unwrap();
-		let second = set.list.iter().nth(1).unwrap();
+		let first = set.0.iter().next().unwrap();
+		let second = set.0.iter().nth(1).unwrap();
 		assert_eq!(2, set.len());
 		assert_eq!(&LabelMatch::from("B1"), first);
 		assert_eq!(&LabelMatch::from("B2"), second);
@@ -145,7 +147,9 @@ mod test_label_set {
 	#[test]
 	fn test_matches_one() {
 		let specs_ref = &Specs::load_default().unwrap();
-		assert!(LabelMatchSet::default().matches_one(&vec![LabelId::from("B1")], specs_ref));
+		assert!(
+			LabelMatchSet::default().matches_one(&HashSet::from([LabelId::from("B1")]), specs_ref)
+		);
 	}
 
 	#[test]

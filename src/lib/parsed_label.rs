@@ -5,7 +5,7 @@ pub type CodeNumber = u8;
 
 /// The `LabelId` is the initial letter + number from a Label.
 /// For instance, the `LabelId` for `B0-silent` is `B0`.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LabelId {
 	pub letter: char,
 	pub number: CodeNumber,

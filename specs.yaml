@@ -46,10 +46,6 @@ labels:
     description: diable1
     color: ffffff
 
-parser:
-  id: ^(\w\d).*$     # default
-  description: ^\w\d-(.*?)$ # Optional, un-used
-
 rules:
   - name: Exactly one visibility label
     id: b_rules
@@ -57,7 +53,6 @@ rules:
       This rule ensures we have a single visibility label.
       It is important to void conflicts such as having a PR
       labels as both important and unsubstantial.
-    # on: id            # default
     spec:
       require: !one_of
         - B*
