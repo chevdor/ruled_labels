@@ -1,0 +1,26 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    asciidoctor (2.0.17)
+    asciidoctor-revealjs (4.1.0)
+      asciidoctor (>= 2.0.0, < 3.0.0)
+      concurrent-ruby (~> 1.0)
+      thread_safe (~> 0.3.5)
+    concurrent-ruby (1.1.10)
+    slim (4.1.0)
+      temple (>= 0.7.6, < 0.9)
+      tilt (>= 2.0.6, < 2.1)
+    temple (0.8.2)
+    thread_safe (0.3.6)
+    tilt (2.0.11)
+
+PLATFORMS
+  x86_64-darwin-20
+
+DEPENDENCIES
+  asciidoctor-revealjs
+  slim (~> 4.0)
+  tilt (~> 2.0)
+
+BUNDLED WITH
+   2.2.33

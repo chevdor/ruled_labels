@@ -95,8 +95,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 			println!("Tests specs: {}", &cmd_opts.test_specs);
 			println!("Specs file : {}", &spec_file.display());
 
-			// TODO: The following is unaccurate as it does not consider that some tests are included/excluded by `only` and `all`
-			// println!(
+			// TODO: The following is unaccurate as it does not consider that some tests are
+			// included/excluded by `only` and `all` println!(
 			// 	"Running {:?} test cases on your {:?} rules",
 			// 	tests.specs.specs.len(),
 			// 	specs.rules.len()

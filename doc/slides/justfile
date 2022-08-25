@@ -1,0 +1,28 @@
+# List available commands
+_default:
+    just --choose --chooser "fzf +s -x --tac --cycle"
+
+# Build the thing, see https://docs.asciidoctor.org/reveal.js-converter/latest/setup/ruby-setup/
+_setup:
+    bundle config --local path .bundle/gems
+    bundle
+    git clone -b 3.9.2 --depth 1 https://github.com/hakimel/reveal.js.git || true
+
+_build:
+    # bundle exec asciidoctor-revealjs -a revealjsdir=https://cdn.jsdelivr.net/npm/reveal.js@3.9.2 main.adoc
+    bundle exec asciidoctor-revealjs main.adoc
+
+# Present
+present: stop
+    #!/usr/bin/env bash
+    python -m http.server --directory . --bind 127.0.0.1 8000 &
+    open http://127.0.0.1:8000/main.html
+
+dev: stop
+    #!/usr/bin/env bash
+    echo "Open main.html in vscode as preview"
+    fswatch . -e ".*\.adoc$" |  xargs -n1 -I{} bundle exec asciidoctor-revealjs main.adoc
+
+stop:
+    #!/usr/bin/env bash
+    ps | grep "python -m http.server" | grep -v grep | cut -d " " -f1 | xargs kill

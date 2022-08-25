@@ -69,7 +69,7 @@ rules:
         - X1
         - X*
 
-  - name: WIP Note Worthy need one Prio label
+  - name: Note Worthy need one Prio label
     id: b_need_p
     spec:
       when: !one_of
@@ -79,7 +79,7 @@ rules:
       exclude: !all_of
         - P1
 
-  - name: WIP Note Worthy implies no J label
+  - name: Note Worthy implies no J label
     id: b_excludes_j
     spec:
       when: !one_of

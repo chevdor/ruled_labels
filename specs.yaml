@@ -1,7 +1,11 @@
 ---
+# tag::header[]
 name: chevdor/glabel
 version: 0.1.0
 description: Import from chevdor/glabel
+# end::header[]
+
+# tag::labels[]
 labels:
   - name: A1-foo
     description: Foo
@@ -9,6 +13,7 @@ labels:
   - name: A2-bar
     description: Bar
     color: d73a4a
+# end::labels[]
   - name: X1-frontend
     description: Frontend
     color: d73a4a
@@ -46,7 +51,16 @@ labels:
     description: diable1
     color: ffffff
 
+# tag::rules[]
 rules:
+  - name: Some topics (X labels)
+    spec:
+      require: !some_of
+        - X1
+        - X2
+        - J2
+# end::rules[]
+
   - name: Exactly one visibility label
     id: b_rules
     description: |
@@ -58,12 +72,6 @@ rules:
         - B*
       exclude: ~
 
-  - name: Some topics (X labels)
-    spec:
-      require: !some_of
-        - X1
-        - X2
-        - J2
 
   - name: Note Worthy need one Prio label
     id: b_need_p
@@ -78,7 +86,7 @@ rules:
       exclude: !all_of
         - P1
 
-  - name: WIP Note Worthy implies no J label
+  - name: Note Worthy implies no J label
     id: b_excludes_j
     spec:
       # when:

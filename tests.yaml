@@ -12,11 +12,7 @@ specs:
 
   - name: Pass
     only: true
-    labels:
-      - B0-silent
-      - X1-bar
-      - X2-bar
-      - X3-foobar
+    labels: [ B0-silent, X1-bar, X2-bar, X3-foobar ]
     expected: true
 
   - name: Missing topics

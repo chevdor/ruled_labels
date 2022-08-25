@@ -69,7 +69,7 @@ labels as both important and unsubstantial.
 
 
 
-### WIP Note Worthy need one Prio label
+### Note Worthy need one Prio label
 
 
 
@@ -87,7 +87,7 @@ labels as both important and unsubstantial.
 
   - P1
 
-### WIP Note Worthy implies no J label
+### Note Worthy implies no J label
 
 
 
@@ -130,6 +130,3 @@ labels as both important and unsubstantial.
 - Exclude:
 
   - D*
-
-
-

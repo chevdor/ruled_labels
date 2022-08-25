@@ -1,0 +1,58 @@
+code {
+    color: rgb(47, 234, 240) !important;
+}
+
+.reveal section.title small {
+    margin-top: 15.3em;
+    font-weight: bold;
+    /* color: blue; */
+}
+
+body {
+    /* background-color: red; */
+    background: linear-gradient(#121212, #1b1b1b);
+}
+
+.listingblock {
+    overflow: hidden;
+}
+
+h1,h2 {
+    filter: drop-shadow(0 0 0.5rem rgba(79, 186, 122, 0.781));
+}
+
+h1 {
+    color: #ff6be7d9 !important;
+    filter: drop-shadow(0 0 0.75rem crimson);
+}
+
+h2 {
+    color: #ff6be7d9 !important;
+    filter: drop-shadow(0 0 0.75rem crimson);
+}
+
+pre {
+    color:rgb(10, 185, 1);
+    background-color: #232020;
+    padding: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 10px;
+}
+.admonitionblock > table {
+    border: none;
+}
+
+.admonitionblock.warning {
+    background-color: rgba(84, 84, 33, 0.209);
+    color: rgb(199, 65, 65);
+    border: 1px solid rgba(255, 255, 15, 0.657);
+    border-radius: 15px;
+}
+
+.admonitionblock.note {
+    background-color: rgba(24, 59, 69, 0.222);
+    color: rgb(0, 213, 255);
+    border: 1px solid rgb(15, 239, 255);
+    border-radius: 15px;
+} 

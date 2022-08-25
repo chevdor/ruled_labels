@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+gem 'asciidoctor-revealjs'
+gem 'tilt', '~>2.0'
+gem 'slim', '~>4.0'

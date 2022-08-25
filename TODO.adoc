@@ -1,0 +1,39 @@
+== TODOS
+
+// tag::todo[]
+[.column]
+- testing! testing! testing!
+- more documentation
+- code cleanup
+- Release ci including deb packaging
+
+[.column]
+- add `--no-color`
+- improve `check` hints
+- Support for `Option<Tag>` for `check`
+- Support for weight/priority
+// end::todo[]
+
+- [x] get check to work
+- [x] deal with all todos
+- [x] get test to pass
+- [x] add tera template
+- [x] add an option to have a decription in the rules, for the doc
+- [x] Sets real Sets and not Vec, in order to avoid dups
+
+
+== Live testing
+
+It would be nice having ways to do live testing:
+
+- in a console, maybe using fzf and its preview feature
+- in vscode, to live reload and work on the rules
+
+
+== Extremely useful would be:
+
+Impl some From<&str> from a comma separated would help avoiding those vec![Bla::try_from("One").unwrap(), Bla::try_from("Two").unwrap()] and use instead Foo::from("One,Two") and panic if needed.
+
+- LabelId::from("B1") -> LabelId
+- vec<LabelId>::from("B1,B2") -> Vec<LabelId>
+- LabelSet::from("B1,B2")-> LabelSet

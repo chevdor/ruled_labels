@@ -1,0 +1,11 @@
+name: chevdor/glabel
+desc: Import from chevdor/glabel
+labels: 14
+Rules:
+ - Some topics (X labels)
+ - Exactly one visibility label (b_rules)
+ - Note Worthy need one Prio label (b_need_p)
+ - Note Worthy implies no J label (b_excludes_j)
+ - Exclude all Ds
+ - Require all of J
+

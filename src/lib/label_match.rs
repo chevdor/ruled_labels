@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use super::parsed_label::LabelId;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 /// An type to describe one or a set of Labels
 /// either specifying it or providing a regexp matching several

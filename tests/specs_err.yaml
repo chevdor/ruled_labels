@@ -70,7 +70,7 @@ rules:
         - X2
         - J2
 
-  - name: WIP Note Worthy need one Prio label
+  - name: Note Worthy need one Prio label
     id: b_need_p
     ERROR_HERE:
       # when:
@@ -80,7 +80,7 @@ rules:
       exclude: !all_of
         - P1
 
-  - name: WIP Note Worthy implies no J label
+  - name: Note Worthy implies no J label
     id: b_excludes_j
     spec:
       # when:

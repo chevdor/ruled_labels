@@ -1,0 +1,271 @@
+:name: pass:q[`ruled-labels`]
+:cli: ruled-labels
+:customcss: ./css/main.css
+:version: v0.1.0
+
+= Ruled Labels
+
+`{cli} {version}`
+
+[source,yaml]
+----
+rules:
+  - name: Note Worthy need one Prio label
+    spec:
+      require: !one_of
+        - P*
+      exclude: !all_of ["X1", "X2"]
+----
+
+[bash]
+----
+Running checks on 4 labels: B0, J1, A1, J2
+    PASSED  Some topics (X labels)
+    PASSED  Exactly one visibility label
+    PASSED  Note Worthy need one Prio label
+    PASSED  Note Worthy implies no J label
+    PASSED  Exclude all Ds
+    PASSED  Require all of J
+PASSED  chevdor/glabel v0.1.0 for labels B0, J1, A1, J2
+----
+
+== Disclaimers
+
+=== Alpha stage
+
+NOTE: This is alpha and needs testing
+
+=== Fantasy Labels and Rules
+
+- The label codes are random
+- The Rules are totally random
+
+== Follow along
+
+- `cargo` / Rust toolchain
+- `GITHUB_TOKEN` as ENV
+- `vscode` / texteditor
+
+== Why ?
+
+[.text-left]
+Use cases:
+
+// [%step]
+- `require` at least a `B` label
+- `exclude` all `O` labels
+- `require` no more than one `B` label
+- `when` you have a `T` label `require` one `S` label
+- `when` you have a `B` label `exclude` `X` labels
+
+== Label
+
+`B0-Silent` => `B0` - `Silent`
+
+`letter`|`digit` [- `description`]
+
+== What you do NOT need
+
+// [%step]
+- programming
+- cargo / +rust+
+- bash
+
+NOTE: atm cargo is still needed to install
+
+== Features
+
+=== Setup / Specs
+
+// [%step]
+- define rules in a `yaml` file
+- check (lint) the yaml specs
+- run test scenarii
+
+=== CI / Check
+
+// [%step]
+- check labels applied on an issue or a PR
+- list the current rules
+- generate documentation
+
+== Required files
+
+// [%step]
+- Required: `specs.yaml`
+- Optionnal: `tests.yaml`
+
+WARNING: File names and paths need to be provided if the defaults are not used.
+
+== Getting started
+
+== `glabel` install & usage
+
+=== `glabel` install
+
+    cargo install --git https://github.com/chevdor/glabel
+
+NOTE: Rust toolchain required **for the moment**
+
+=== Fetch some labels
+
+    glabel get paritytech/cumulus -o specs.yaml
+
+----
+include::./specs.yaml[lines=1..13]
+----
+
+== {name} install & usage
+
+=== Install {name}
+
+    cargo install -- git https://github.com/chevdor/ruled_labels
+
+NOTE: Rust toolchain required **for the moment**
+
+=== Discover
+
+----
+include::../usage/help.adoc[]
+----
+
+=== Logger
+
+```
+export RUST_LOG=info
+```
+
+```
+unset RUST_LOG
+```
+
+- info
+- debug
+- trace
+
+=== Lint
+
+[subs="attributes+"]
+----
+    {cli} lint
+    {cli} lint not_specs.yaml
+----
+
+----
+include::../usage/lint.adoc[]
+----
+
+NOTE: That part may get more exciting later :)
+
+
+=== List
+
+[subs="attributes+"]
+----
+    {cli} list
+----
+
+----
+include::../usage/list.adoc[]
+----
+
+=== Check
+
+[subs="attributes+"]
+----
+    {cli} check -l B1 B2
+    {cli} check -l B1 A1 X9
+----
+
+----
+include::../usage/check.adoc[]
+----
+
+=== Test
+
+[subs="attributes+"]
+----
+    {cli} test
+    {cli} test custom_tests.yaml -s special_specs.yaml
+    {cli} test --only
+----
+
+----
+include::../usage/test.adoc[]
+----
+
+== Rule Engine & Syntax
+
+=== `specs.yaml`: Header
+
+[source,yaml]
+----
+include::../../specs.yaml[tags=header]
+----
+
+=== `specs.yaml`: Labels
+
+[source,yaml]
+----
+include::../../specs.yaml[tags=labels]
+----
+
+=== `specs.yaml`: Rules
+
+[source,yaml]
+----
+include::../../specs.yaml[tags=rules]
+----
+
+include::../../doc/vscode_yaml.adoc[leveloffset=+1]
+
+=== Rule anathomy: min
+
+[source,yaml]
+----
+rules:
+  - name: Note Worthy need one Prio label
+    spec:
+      require: !one_of
+        - P*
+      exclude: !all_of ["X1", "X2"]
+----
+
+=== Rule anathomy: extended
+
+[source,yaml]
+----
+rules:
+  - name: Note Worthy need one Prio label
+    id: b_need_p
+    spec:
+      when: !one_of
+        - B*
+      require: !one_of
+        - P*
+----
+
+== Test Engine & Syntax
+
+[source,yaml]
+----
+include::../../tests.yaml[]
+----
+
+=== Result
+
+----
+include::../usage/test.adoc[]
+----
+
+[.columns]
+== TODOs
+
+include::../../TODO.adoc[tags=todo]
+
+== Repository
+
+https://github.com/chevdor/ruled_labels
+`@chevdor:matrix.parity.io`
+
+=> Write YAML tests

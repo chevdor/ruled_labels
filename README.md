@@ -29,3 +29,14 @@ If all the rules pass, `rl` returns 0.
 
 In some case, you may want to enforce that some rules are applied before or after others.
 By default, rules have a priority of `100`. Any rule with a lower priority will be applied before those with higher prio.
+
+## Vscode yaml
+
+Add to the yaml pluggin config:
+
+        "yaml.customTags": [
+            "!none_of sequence",
+            "!one_of sequence",
+            "!some_of sequence",
+            "!all_of sequence",
+        ]
