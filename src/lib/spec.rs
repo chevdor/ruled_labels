@@ -138,10 +138,10 @@ impl Specs {
 			let label_ids: HashSet<LabelId> = HashSet::from_iter(ids.clone());
 			ref_set.extend(label_ids.iter());
 		}
-		log::trace!("full ref_set : {:>3?} => {:?}", ref_set.len(), set_to_string(&ref_set));
+		log::debug!("full ref_set : {:>3?} => {:?}", ref_set.len(), set_to_string(&ref_set));
 
 		// we now need to filter the full list according to the `set` and retain only the matches
-		ref_set.iter().filter(|&label_id| set.matches(label_id).0).copied().collect()
+		ref_set.iter().filter(|&label_id| set.matches_label(label_id).0).copied().collect()
 	}
 }
 

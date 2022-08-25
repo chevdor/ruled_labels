@@ -104,13 +104,27 @@ mod cli_tests {
 		use assert_cmd::Command;
 
 		#[test]
-		fn it_tests_good() {
+		fn it_tests_good_all() {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
 			let assert = cmd
 				.arg("test")
 				.arg("./tests/tests_pass.yaml")
 				.arg("-s")
 				.arg("./tests/specs_ok.yaml")
+				.arg("--all")
+				.assert();
+			assert.success().code(0);
+		}
+
+		#[test]
+		fn it_tests_good_only() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd
+				.arg("test")
+				.arg("./tests/tests_pass.yaml")
+				.arg("-s")
+				.arg("./tests/specs_ok.yaml")
+				.arg("--only")
 				.assert();
 			assert.success().code(0);
 		}

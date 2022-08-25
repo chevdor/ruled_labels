@@ -3,7 +3,6 @@ spec_file: specs.yaml
 
 specs:
   - name: Should Fail
-    only: true
     labels:
       - B1-note_worthy
       - B0-silent
@@ -26,4 +25,15 @@ specs:
       - B0-silent
       - X1-bar
       - X2-bar
+    expected: false
+
+  - name: Should PASS - testing WHEN
+    only: true
+    description: Here we test the WHEN rule
+    labels: [ "B1", "A1", "X1", "X2", "X3" ]
+    expected: true
+
+  - name: Should FAIL - testing WHEN
+    description: Here we test the WHEN rule
+    labels: [ "B1", "X1" ]
     expected: false

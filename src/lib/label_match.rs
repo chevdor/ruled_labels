@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use super::parsed_label::LabelId;
 use serde::{Deserialize, Serialize};
 
@@ -19,24 +20,12 @@ impl LabelMatch {
 			pattern == &id.to_string()
 		}
 	}
+}
 
-	/// Returns true if ONE of the passed `LabelId`s match our pattern
-	pub fn matches_one(&self, _ids: &[LabelId]) -> bool {
-		todo!()
+impl Display for LabelMatch {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_fmt(format_args!("{}", self.0))
 	}
-
-	/// Returns true if ALL of the passed `LabelId`s match our pattern
-	pub fn matches_all(&self, _ids: &[LabelId]) -> bool {
-		todo!()
-	}
-
-	// /// When we test labels such as X0, B1, B2, B3 against the LabelMatch B*
-	// /// we only want to consider the labels matching the patter.
-	// /// In other words, in our example, X0 is totally irrelevant to know
-	// /// if X0, B1, B2, B3 matches the pattern B*. This function filters the non relevant labels.
-	// pub fn filter(labels: &HashSet<LabelId>) -> &HashSet<LabelId> {
-
-	// }
 }
 
 impl From<&str> for LabelMatch {

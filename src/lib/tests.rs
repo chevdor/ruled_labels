@@ -32,7 +32,6 @@ pub struct TestSpec {
 }
 
 impl Tests {
-	// TODO: use anyhow
 	pub fn load(file_path: &str) -> Result<Self> {
 		let s = fs::read_to_string(PathBuf::from(file_path))?;
 		serde_yaml::from_str::<Self>(&s)
@@ -87,7 +86,7 @@ impl Tests {
 			})
 			.map(|test_spec| {
 				test_index += 1;
-				// TODO: you can bring back the `test_count` once fixed and considers `all` and
+				// TODO: Bring back the `test_count` once fixed and considers `all` and
 				// `only` println!(
 				// 	"\n    ▶️ Running test {:>2?}/{:<2?}: {}",
 				// 	test_index, tests_count, test_spec.name

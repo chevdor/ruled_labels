@@ -1,3 +1,5 @@
+use crate::lib::set_to_string;
+
 use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, spec::Specs, token_rule::*};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display};
@@ -11,7 +13,7 @@ fn default_none() -> Option<String> {
 	None
 }
 
-fn default_disabled() -> bool {
+fn default_false() -> bool {
 	false
 }
 
@@ -25,7 +27,7 @@ pub struct Rule {
 	#[serde(default = "default_none")]
 	pub id: Option<String>,
 
-	#[serde(default = "default_disabled")]
+	#[serde(default = "default_false")]
 	pub disabled: bool,
 
 	// #[serde(default = "default_priority")]
@@ -108,24 +110,6 @@ impl Rule {
 		label_match_set.matches_all(labels, specs)
 	}
 
-	// pub fn exclude_none(&self, _labels: &HashSet<LabelId>, _label_set: &LabelMatchSet) -> bool {
-	// 	// println!("exclude_none");
-	// 	true
-	// }
-
-	// /// This rule is not super useful but provided for completeness.
-	// /// It can be read as "require all but one of the listed"
-	// /// Say we have labels B0, B1, B2.
-	// pub fn exclude_one(&self, labels: &HashSet<LabelId>, label_set: &LabelMatchSet) -> bool {
-	// 	// println!("exclude_one");
-	// 	!label_set.matches_one(labels)
-	// }
-
-	// /// Yet another funky rule happy if one or more listed LabelMatch are excluded
-	// pub fn exclude_some(&self, labels: &HashSet<LabelId>, label_set: &LabelMatchSet) -> bool {
-	// 	!label_set.matches_some(labels)
-	// }
-
 	/// The passed `LabelId` should be neither be `_label` nor part of the `_label_set`.
 	pub fn exclude_all(
 		&self,
@@ -146,7 +130,51 @@ impl Rule {
 			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
 		);
 
-		// TODO: impl the when filter
+		log::debug!("when = {:?}", self.spec.when);
+		if let Some(when) = &self.spec.when {
+			match when {
+				TokenRuleWhen::None(when) =>
+					if when.matches_none(labels, specs) {
+						log::debug!(
+							"when_none {} is satisfied with {}",
+							when,
+							set_to_string(labels)
+						);
+					} else {
+						return None
+					},
+				TokenRuleWhen::One(when) =>
+					if when.matches_one(labels, specs) {
+						log::debug!(
+							"when_one {} is satisfied with {}",
+							when,
+							set_to_string(labels)
+						);
+					} else {
+						return None
+					},
+				TokenRuleWhen::Some(when) =>
+					if when.matches_some(labels, specs) {
+						log::debug!(
+							"when_some {} is satisfied with {}",
+							when,
+							set_to_string(labels)
+						);
+					} else {
+						return None
+					},
+				TokenRuleWhen::All(when) =>
+					if when.matches_all(labels, specs) {
+						log::debug!(
+							"when_all {} is satisfied with {}",
+							when,
+							set_to_string(labels)
+						);
+					} else {
+						return None
+					},
+			}
+		}
 
 		if self.disabled {
 			return None
@@ -155,9 +183,6 @@ impl Rule {
 		if let Some(tr) = &self.spec.exclude {
 			log::trace!("  Processing exclude rules");
 			return Some(match tr {
-				// TokenRuleExclude::None(ls) => self.exclude_none(labels, ls),
-				// TokenRuleExclude::One(ls) => self.exclude_one(labels, ls),
-				// TokenRuleExclude::Some(ls) => self.exclude_some(labels, ls),
 				TokenRuleExclude::All(ls) => self.exclude_all(labels, ls, specs),
 			})
 		} else {
@@ -242,7 +267,7 @@ mod test_label_set {
 	fn test_matches() {
 		let set = LabelMatchSet::from_str("A1,A2,B*");
 		assert_eq!(3, set.len());
-		let res = set.matches(&LabelId::from("A1"));
+		let res = set.matches_label(&LabelId::from("A1"));
 		assert!(res.0);
 		assert!(res.1.is_some());
 		assert_eq!(1, res.1.unwrap().len());
@@ -251,6 +276,7 @@ mod test_label_set {
 
 #[cfg(test)]
 mod test_rule {
+	#![allow(non_snake_case)]
 	use super::*;
 	use crate::lib::{label_id_set::LabelIdSet, label_match_set::LabelMatchSet, spec::*};
 
@@ -449,39 +475,14 @@ spec:
 	}
 
 	#[test]
-	fn test_rule_check_require_all_of_with_star_1() {
+	fn test_rule_check_require_all_of_with_star() {
 		let specs = &Specs::load_test_default().unwrap();
-
 		let token_rule = TokenRuleRequire::All(LabelMatchSet::from_str("X*"));
 		let spec = RuleSpec { require: Some(token_rule), exclude: None, when: None };
 		let rule = Rule::new("test rule", spec);
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("X1,X2,X3"), specs));
-	}
-
-	#[test]
-	fn test_rule_check_require_all_of_with_star_2() {
-		let specs = &Specs::load_test_default().unwrap();
-		let token_rule = TokenRuleRequire::All(LabelMatchSet::from_str("X*"));
-		let spec = RuleSpec { require: Some(token_rule), exclude: None, when: None };
-		let rule = Rule::new("test rule", spec);
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0,X1,X2,X3"), specs));
-	}
-
-	#[test]
-	fn test_rule_check_require_all_of_with_star_3() {
-		let specs = &Specs::load_test_default().unwrap();
-		let token_rule = TokenRuleRequire::All(LabelMatchSet::from_str("X*"));
-		let spec = RuleSpec { require: Some(token_rule), exclude: None, when: None };
-		let rule = Rule::new("test rule", spec);
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("X1,X1,X3"), specs));
-	}
-
-	#[test]
-	fn test_rule_check_require_all_of_with_star_4() {
-		let specs = &Specs::load_test_default().unwrap();
-		let token_rule = TokenRuleRequire::All(LabelMatchSet::from_str("X*"));
-		let spec = RuleSpec { require: Some(token_rule), exclude: None, when: None };
-		let rule = Rule::new("test rule", spec);
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("X1,X2"), specs));
 	}
 
@@ -496,13 +497,172 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
-			//
 		};
-
-		// println!("rule = {:?}", rule);
 
 		let res = rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs);
 
 		assert_eq!(Some(false), res);
+	}
+
+	#[test]
+	fn test_rule_check_when_B1_require_A1() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_one_b1 = TokenRuleWhen::One(LabelMatchSet::from_str("B1"));
+		let require_one_a1 = TokenRuleRequire::One(LabelMatchSet::from_str("A1"));
+		let spec =
+			RuleSpec { when: Some(when_one_b1), require: Some(require_one_a1), exclude: None };
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B1, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B1, A1, A2, B2"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("A1, A2, B2"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_all_of_B_require_one_A() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_all_b = TokenRuleWhen::All(LabelMatchSet::from_str("B*"));
+		let require_one_a = TokenRuleRequire::One(LabelMatchSet::from_str("A*"));
+		let spec = RuleSpec { when: Some(when_all_b), require: Some(require_one_a), exclude: None };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, B2, A1"), specs));
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2, A1, A2"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("B0, B1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_all_of_B_require_some_As() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_all_b = TokenRuleWhen::All(LabelMatchSet::from_str("B*"));
+		let require_some_a = TokenRuleRequire::Some(LabelMatchSet::from_str("A*"));
+		let spec =
+			RuleSpec { when: Some(when_all_b), require: Some(require_some_a), exclude: None };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, B2, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, B2, A1, A2"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("B0, B1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_one_of_B_require_A1() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_one_b = TokenRuleWhen::One(LabelMatchSet::from_str("B*"));
+		let require_one_a1 = TokenRuleRequire::One(LabelMatchSet::from_str("A1"));
+		let spec =
+			RuleSpec { when: Some(when_one_b), require: Some(require_one_a1), exclude: None };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("B0, B1, B2, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B1, A1, A2"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("X1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_one_of_B_require_some_As() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_one_b = TokenRuleWhen::One(LabelMatchSet::from_str("B*"));
+		let require_some_a = TokenRuleRequire::Some(LabelMatchSet::from_str("A*"));
+		let spec =
+			RuleSpec { when: Some(when_one_b), require: Some(require_some_a), exclude: None };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1, A2"), specs));
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, X1"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("X1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_some_of_B_require_some_A() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_some_b = TokenRuleWhen::Some(LabelMatchSet::from_str("B*"));
+		let require_some_a = TokenRuleRequire::Some(LabelMatchSet::from_str("A*"));
+		let spec =
+			RuleSpec { when: Some(when_some_b), require: Some(require_some_a), exclude: None };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, T8"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B1, A2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2, T9"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("X1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_when_some_of_B_require_some_A_and_exclude_all_X() {
+		let specs = &Specs::load_test_default().unwrap();
+		let when_some_b = TokenRuleWhen::Some(LabelMatchSet::from_str("B*"));
+		let require_some_a = TokenRuleRequire::Some(LabelMatchSet::from_str("A*"));
+		let exclude_all_x = TokenRuleExclude::All(LabelMatchSet::from_str("X*"));
+
+		let spec = RuleSpec {
+			when: Some(when_some_b),
+			require: Some(require_some_a),
+			exclude: Some(exclude_all_x),
+		};
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B1, A2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A2"), specs));
+		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2"), specs));
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2, T9, X1"), specs));
+		assert_eq!(None, rule.check(&LabelIdSet::from_str("X1"), specs));
 	}
 }

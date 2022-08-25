@@ -2,7 +2,7 @@ use crate::lib::set_to_string;
 
 use super::{label_match::LabelMatch, parsed_label::LabelId, spec::Specs};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Display};
 
 /// A Vec of `LabelMatch`
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -28,31 +28,32 @@ impl LabelMatchSet {
 	/// item in the `LabelSet`. If it matches it returns a tupple
 	/// made of the matching status as boolean as well as the list of
 	/// matching patterns.
-	pub fn matches(&self, id: &LabelId) -> (bool, Option<Vec<&LabelMatch>>) {
+	pub fn matches_label(&self, id: &LabelId) -> (bool, Option<Vec<&LabelMatch>>) {
 		let matches: Vec<&LabelMatch> = self.0.iter().filter(|pat| pat.matches(id)).collect();
 		let status = !matches.is_empty();
 		let matches = if !matches.is_empty() { Some(matches) } else { None };
 		(status, matches)
 	}
 
-	// /// Returns true if one of the passed `LabelId` matches items in the set.
-	// pub fn matches_none(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
-	// 	let augmented_label_set = specs.generate_label_set(self, None);
-	// 	println!("augmented_label_set = {:?}", augmented_label_set);
+	/// Returns true if one of the passed `LabelId` matches items in the set.
+	pub fn matches_none(&self, _labels: &HashSet<LabelId>, _specs: &Specs) -> bool {
+		// let augmented_label_set = specs.generate_label_set(self, None);
+		// println!("augmented_label_set = {:?}", augmented_label_set);
 
-	// 	todo!()
-	// }
+		unimplemented!()
+	}
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_one(&self, ids: &HashSet<LabelId>, _specs: &Specs) -> bool {
-		let hits = ids.iter().filter(|&id| self.matches(id).0);
+	pub fn matches_one(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
+		let ref_set = specs.generate_reference_set(self, Some(labels));
+		let hits = labels.iter().filter(|&label| ref_set.contains(label));
 		hits.count() == 1
 	}
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
 	pub fn matches_some(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
 		let ref_set = specs.generate_reference_set(self, Some(labels));
-		let hits = labels.iter().filter(|&id| ref_set.contains(id));
+		let hits = labels.iter().filter(|&label| ref_set.contains(label));
 		hits.count() >= 1
 	}
 
@@ -61,9 +62,6 @@ impl LabelMatchSet {
 	/// according to both the input labels and the specs
 	pub fn matches_all(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
 		log::trace!("matches_all");
-
-		// First we generate the actual set, this will expand the * patterns and include
-		// labels we passed and are potentially not present in the specs.
 
 		let ref_set: HashSet<LabelId> =
 			specs.generate_reference_set(self, Some(labels)).into_iter().collect();
@@ -87,6 +85,12 @@ impl LabelMatchSet {
 
 	pub fn len(&self) -> usize {
 		self.0.len()
+	}
+}
+
+impl Display for LabelMatchSet {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_fmt(format_args!("{}", set_to_string(&self.0)))
 	}
 }
 
@@ -163,7 +167,7 @@ mod test_label_set {
 
 	#[test]
 	fn test_matches() {
-		assert!(LabelMatchSet::default().matches(&LabelId::from("B1")).0);
+		assert!(LabelMatchSet::default().matches_label(&LabelId::from("B1")).0);
 	}
 
 	#[test]
