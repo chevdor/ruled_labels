@@ -12,3 +12,8 @@ pub mod spec;
 pub mod test_result;
 pub mod tests;
 pub mod token_rule;
+
+pub fn set_to_string<T: IntoIterator<Item = I>, I: ToString>(c: T) -> String {
+	let s = c.into_iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", ");
+	format!("{}", s)
+}

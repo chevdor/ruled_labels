@@ -1,3 +1,5 @@
+use crate::lib::set_to_string;
+
 use super::{label_match::LabelMatch, parsed_label::LabelId, spec::Specs};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -48,16 +50,41 @@ impl LabelMatchSet {
 	}
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_some(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
-		let hits = ids.iter().filter(|&id| self.matches(id).0);
+	pub fn matches_some(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
+		let ref_set = specs.generate_reference_set(self, Some(labels));
+		let hits = labels.iter().filter(|&id| ref_set.contains(id));
 		hits.count() >= 1
 	}
 
 	/// Returns true if ALL of the passed `LabelId` matches the items in the set.
-	pub fn matches_all(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
+	/// This requires an intermediate step to expand the LabelMatchSet into an actual list
+	/// according to both the input labels and the specs
+	pub fn matches_all(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
 		println!("matches_all");
-		let hits = ids.iter().filter(|&&id| self.matches(&id).0);
-		hits.count() == self.0.len()
+
+		// First we generate the actual set, this will expand the * patterns and include
+		// labels we passed and are potentially not present in the specs.
+
+		let ref_set: HashSet<LabelId> = specs
+			.generate_reference_set(self, Some(labels))
+			.into_iter()
+			.collect();
+
+		println!("MatchSet     : {:?}", self);
+		println!("new ref_set  : {:>3?} => {}", ref_set.len(), set_to_string(&ref_set));
+		println!("labels       : {:>3?} => {}", labels.len(),  set_to_string(labels));
+
+		// We now iterate the ref_set to ensure that each of the items in the set
+		// is indeed present in the `labels`.
+		ref_set.iter().map(|l| labels.contains(l)).all(|r| r)
+
+		// self.0.iter().map(|match_set| {
+		// 	let labels_under_test = match_set.filter(labels);
+		// 	println!("labels_under_test = {:?}", set_to_string(labels_under_test));
+		// 	let res = match_set.matches_all(labels_under_test);
+		// 	println!("res = {:?}", res);
+		// 	res
+		// }).all(|e| e)
 	}
 
 	pub fn len(&self) -> usize {

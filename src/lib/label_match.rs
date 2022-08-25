@@ -29,6 +29,14 @@ impl LabelMatch {
 	pub fn matches_all(&self, _ids: &[LabelId]) -> bool {
 		todo!()
 	}
+
+	// /// When we test labels such as X0, B1, B2, B3 against the LabelMatch B*
+	// /// we only want to consider the labels matching the patter.
+	// /// In other words, in our example, X0 is totally irrelevant to know
+	// /// if X0, B1, B2, B3 matches the pattern B*. This function filters the non relevant labels.
+	// pub fn filter(labels: &HashSet<LabelId>) -> &HashSet<LabelId> {
+
+	// }
 }
 
 impl From<&str> for LabelMatch {

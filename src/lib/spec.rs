@@ -1,4 +1,7 @@
-use crate::lib::test_result::{ResultPrinter, TestResult};
+use crate::lib::{
+	set_to_string,
+	test_result::{ResultPrinter, TestResult},
+};
 use anyhow::{Context, Result};
 
 pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
@@ -119,31 +122,26 @@ impl Specs {
 	/// In the yaml spec file, the user either explicitely lists some `LabelId` or provide
 	/// a list of patterns. The list of patterns needs to be applied against the actual list
 	/// of labels. We also need to consider the case when a label is unknown to our specs.
-	/// Foo instance, if our local set contains A1 and B1 and we query passing A2, A2 needs to be
+	/// For instance, if our local set contains A1 and B1 and we query passing A2, A2 needs to be
 	/// added to the pre-filter set.
-	pub fn generate_label_set(
+	pub fn generate_reference_set(
 		&self,
 		set: &LabelMatchSet,
 		extra: Option<&HashSet<LabelId>>,
 	) -> HashSet<LabelId> {
-		let mut list_from_spec: HashSet<LabelId> = self
+		let mut ref_set: HashSet<LabelId> = self
 			.labels
 			.iter()
 			.map(|label| LabelId::try_from(label.name.as_str()).unwrap())
 			.collect::<HashSet<_>>();
 		if let Some(ids) = extra {
 			let label_ids: HashSet<LabelId> = HashSet::from_iter(ids.clone());
-			list_from_spec.extend(label_ids.iter());
+			ref_set.extend(label_ids.iter());
 		}
-		println!("list_from_spec.len = {:?}", list_from_spec.len());
-		println!("list_from_spec = {:?}", list_from_spec);
+		println!("full ref_set : {:>3?} => {:?}", ref_set.len(), set_to_string(&ref_set));
 
 		// we now need to filter the full list according to the `set` and retain only the matches
-		list_from_spec
-			.iter()
-			.filter(|&label_id| set.matches(label_id).0)
-			.copied()
-			.collect()
+		ref_set.iter().filter(|&label_id| set.matches(label_id).0).copied().collect()
 	}
 }
 
@@ -222,7 +220,7 @@ mod test_specs {
 	fn test_generate_label_set_none() {
 		let specs = Specs::load_test_default().unwrap();
 		let label_set = LabelMatchSet::from_str("A1,A2,B*");
-		let set = specs.generate_label_set(&label_set, None);
+		let set = specs.generate_reference_set(&label_set, None);
 
 		assert_eq!(LabelIdSet::from_str("A1,A2,B0,B1,B2"), set);
 	}
@@ -232,7 +230,7 @@ mod test_specs {
 		let specs = Specs::load_test_default().unwrap();
 		let label_set = LabelMatchSet::from_str("A1,A2,B*,T*");
 		let extra = LabelIdSet::from_str("T9");
-		let set = specs.generate_label_set(&label_set, Some(&extra));
+		let set = specs.generate_reference_set(&label_set, Some(&extra));
 
 		assert_eq!(LabelIdSet::from_str("A1,A2,B0,B1,B2, T9"), set);
 	}

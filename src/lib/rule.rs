@@ -94,15 +94,17 @@ impl Rule {
 	}
 
 	/// All the labels from the `LabelMatchSet` must be present
+	/// - labels: The set of LabelId to check
+	/// - label_match_set: The specs of the labels that should match, this can contain wildcards and
+	///   it is NOT expanded
+	/// - specs: reference to the full specs
 	pub fn require_all(
 		&self,
 		labels: &HashSet<LabelId>,
 		label_match_set: &LabelMatchSet,
 		specs: &Specs,
 	) -> bool {
-		println!("require_all");
-		let lset = specs.generate_label_set(label_match_set, Some(labels));
-		println!("lset = {:?}", lset);
+		// println!("require_all");
 		label_match_set.matches_all(labels, specs)
 	}
 
@@ -131,7 +133,7 @@ impl Rule {
 		label_match_set: &LabelMatchSet,
 		specs: &Specs,
 	) -> bool {
-		let lset = specs.generate_label_set(label_match_set, Some(labels));
+		let lset = specs.generate_reference_set(label_match_set, Some(labels));
 		println!("lset = {:?}", lset);
 		let match_some = label_match_set.matches_some(labels, specs);
 		!match_some
