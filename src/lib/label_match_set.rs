@@ -44,7 +44,7 @@ impl LabelMatchSet {
 	// }
 
 	/// Returns true if one of the passed `LabelId` matches items in the set.
-	pub fn matches_one(&self, ids: &HashSet<LabelId>, specs: &Specs) -> bool {
+	pub fn matches_one(&self, ids: &HashSet<LabelId>, _specs: &Specs) -> bool {
 		let hits = ids.iter().filter(|&id| self.matches(id).0);
 		hits.count() == 1
 	}
@@ -60,19 +60,17 @@ impl LabelMatchSet {
 	/// This requires an intermediate step to expand the LabelMatchSet into an actual list
 	/// according to both the input labels and the specs
 	pub fn matches_all(&self, labels: &HashSet<LabelId>, specs: &Specs) -> bool {
-		println!("matches_all");
+		log::trace!("matches_all");
 
 		// First we generate the actual set, this will expand the * patterns and include
 		// labels we passed and are potentially not present in the specs.
 
-		let ref_set: HashSet<LabelId> = specs
-			.generate_reference_set(self, Some(labels))
-			.into_iter()
-			.collect();
+		let ref_set: HashSet<LabelId> =
+			specs.generate_reference_set(self, Some(labels)).into_iter().collect();
 
-		println!("MatchSet     : {:?}", self);
-		println!("new ref_set  : {:>3?} => {}", ref_set.len(), set_to_string(&ref_set));
-		println!("labels       : {:>3?} => {}", labels.len(),  set_to_string(labels));
+		log::debug!("MatchSet     : {:?}", self);
+		log::debug!("new ref_set  : {:>3?} => {}", ref_set.len(), set_to_string(&ref_set));
+		log::debug!("labels       : {:>3?} => {}", labels.len(), set_to_string(labels));
 
 		// We now iterate the ref_set to ensure that each of the items in the set
 		// is indeed present in the `labels`.
@@ -151,19 +149,16 @@ mod test_label_set {
 	#[test]
 	fn test_label_set_from_str_multiple() {
 		let set = LabelMatchSet::from_str("B1,B2");
-		let first = set.0.iter().next().unwrap();
 		assert_eq!(2, set.len());
-		assert_eq!(&LabelMatch::from("B1"), first);
+		assert!(set.0.contains(&LabelMatch::from("B1")));
 	}
 
 	#[test]
 	fn test_label_set_from_str_multiple_spaces() {
 		let set = LabelMatchSet::from_str(" B1,  B2");
-		let first = set.0.iter().next().unwrap();
-		let second = set.0.iter().nth(1).unwrap();
 		assert_eq!(2, set.len());
-		assert_eq!(&LabelMatch::from("B1"), first);
-		assert_eq!(&LabelMatch::from("B2"), second);
+		assert!(set.0.contains(&LabelMatch::from("B1")));
+		assert!(set.0.contains(&LabelMatch::from("B2")));
 	}
 
 	#[test]

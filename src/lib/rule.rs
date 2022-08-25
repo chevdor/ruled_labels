@@ -134,7 +134,7 @@ impl Rule {
 		specs: &Specs,
 	) -> bool {
 		let lset = specs.generate_reference_set(label_match_set, Some(labels));
-		println!("lset = {:?}", lset);
+		log::debug!("lset = {:?}", lset);
 		let match_some = label_match_set.matches_some(labels, specs);
 		!match_some
 	}

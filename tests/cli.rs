@@ -120,7 +120,7 @@ mod cli_tests {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
 			let assert = cmd
 				.arg("test")
-				.arg("tests_fail.yaml")
+				.arg("./tests/tests_fail.yaml")
 				.arg("-s")
 				.arg("./tests/specs_ok.yaml")
 				.assert();

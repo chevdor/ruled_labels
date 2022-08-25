@@ -56,11 +56,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 				None => acc,
 			});
 
-			let faulty_rules: Vec<&Rule> = specs.find_faulty(res);
-			// println!("faulty_rules = {:?}", faulty_rules);
-			if !faulty_rules.is_empty() {
-				println!("faulty_rules:");
-				faulty_rules.iter().for_each(|rule| println!("{:#?}", rule));
+			if cmd_opts.faulty {
+				let faulty_rules: Vec<&Rule> = specs.find_faulty(res);
+				// println!("faulty_rules = {:?}", faulty_rules);
+				if !faulty_rules.is_empty() {
+					println!("faulty_rules:");
+					faulty_rules.iter().for_each(|rule| println!("{:#?}", rule));
+				}
 			}
 
 			let title = format!(

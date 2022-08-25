@@ -54,6 +54,10 @@ pub struct CheckOpts {
 	/// The list of labels
 	#[clap(long, short, required = true, multiple = true)]
 	pub labels: Vec<String>,
+
+	/// Show details about the rules of the faulty tests
+	#[clap(long)]
+	pub faulty: bool,
 }
 
 /// Run tests using rules and a test set
