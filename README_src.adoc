@@ -1,11 +1,12 @@
 :toc: right
-:prj: Ruled-Labels
+:prj: ruled-labels
+:cli: pass:q[`ruled-labels`]
 
 = Ruled Labels
 
-{{prj}} is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
+{cli} is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
 
-{{prj}} is aware of:
+{cli} is aware of:
 
 - the list of labels and their properties
 - the parsing rules

@@ -1,8 +1,8 @@
 # Ruled Labels
 
-{Ruled-Labels} is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
+`ruled-labels` is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
 
-{Ruled-Labels} is aware of:
+`ruled-labels` is aware of:
 
 -   the list of labels and their properties
 
@@ -34,9 +34,9 @@ By default, rules have a priority of `100`. Any rule with a lower priority will 
 
 Add to the yaml pluggin config:
 
-        "yaml.customTags": [
-            "!none_of sequence",
-            "!one_of sequence",
-            "!some_of sequence",
-            "!all_of sequence",
-        ]
+    "yaml.customTags": [
+        "!none_of sequence",
+        "!one_of sequence",
+        "!some_of sequence",
+        "!all_of sequence",
+    ]

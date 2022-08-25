@@ -4,10 +4,10 @@ Add to the yaml pluggin config:
 
 [source,json]
 ----
-    "yaml.customTags": [
-        "!none_of sequence",
-        "!one_of sequence",
-        "!some_of sequence",
-        "!all_of sequence",
-    ]
+"yaml.customTags": [
+    "!none_of sequence",
+    "!one_of sequence",
+    "!some_of sequence",
+    "!all_of sequence",
+]
 ----
