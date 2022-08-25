@@ -4,6 +4,8 @@
 
 = Ruled Labels
 
+image::https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml/badge.svg?branch=master[link="https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml"]
+
 {cli} is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
 
 {cli} is aware of:

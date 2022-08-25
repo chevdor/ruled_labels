@@ -1,5 +1,7 @@
 # Ruled Labels
 
+![badge](https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml/badge.svg?branch=master)
+
 `ruled-labels` is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
 
 `ruled-labels` is aware of:
