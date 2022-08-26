@@ -15,25 +15,26 @@ specs:
       - X1-bar
       - X2-bar
       - X3-foobar
+      - P2
     expected: true
 
   - name: Should FAIL b/c Missing topics
-    skip: true
     description: |
       We expect to fail here as we are not passing any X label
     labels:
       - B0-silent
       - X1-bar
       - X2-bar
+      - P2
     expected: false
 
   - name: Should PASS - testing WHEN
     only: true
     description: Here we test the WHEN rule
-    labels: [ "B1", "A1", "X1", "X2", "X3" ]
+    labels: [ B1, A1, X1, X2, X3, P2 ]
     expected: true
 
   - name: Should FAIL - testing WHEN
     description: Here we test the WHEN rule
-    labels: [ "B1", "X1" ]
+    labels: [ B1, X1, X2, X3, J1, P2 ]
     expected: false

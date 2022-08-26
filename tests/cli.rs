@@ -58,8 +58,25 @@ mod cli_tests {
 				.arg("X1")
 				.arg("X2")
 				.arg("X3")
+				.arg("P2")
 				.assert();
 			assert.success().code(0);
+		}
+
+		#[test]
+		fn it_calls_check_and_fails() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd
+				.arg("check")
+				.arg("./tests/specs_ok.yaml")
+				.arg("-l")
+				.arg("B1")
+				.arg("X1")
+				.arg("X2")
+				.arg("X3")
+				.arg("P1")
+				.assert();
+			assert.failure().code(1);
 		}
 
 		#[test]

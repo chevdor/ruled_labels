@@ -63,6 +63,8 @@ rules:
 
   - name: Exactly one visibility label
     id: b_rules
+    tags: [ CI ]
+    priority: 1000
     description: |
       This rule ensures we have a single visibility label.
       It is important to void conflicts such as having a PR
@@ -75,6 +77,8 @@ rules:
 
   - name: Note Worthy need one Prio label
     id: b_need_p
+    tags: [v2]
+    priority: 100
     spec:
       # when we have one of the B labels
       when: !one_of
@@ -105,3 +109,9 @@ rules:
     spec:
       require: !all_of
         - J*
+
+  - name: Require 1 P and no X
+    spec:
+      require: !one_of
+        - P*
+      exclude: !all_of ["X1", "X2"]

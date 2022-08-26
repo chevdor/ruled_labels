@@ -3,7 +3,7 @@
 use super::label_match_set::LabelMatchSet;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub enum TokenRuleRequire {
 	/// None from the set
 	#[serde(rename = "none_of")]
@@ -23,14 +23,14 @@ pub enum TokenRuleRequire {
 	All(LabelMatchSet),
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub enum TokenRuleExclude {
 	/// All of those in the set
 	#[serde(rename = "all_of")]
 	All(LabelMatchSet),
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub enum TokenRuleWhen {
 	/// None from the set
 	#[serde(rename = "none_of")]

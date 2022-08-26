@@ -20,7 +20,7 @@ fn default_false() -> bool {
 
 /// This struct defines a [Rule]. It contains mainly some meta information
 /// as well as the [RuleSpec] which describe the specs of the [Rule].
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 pub struct Rule {
 	pub name: String,
 
@@ -184,28 +184,35 @@ impl Rule {
 			return None
 		}
 
-		if let Some(tr) = &self.spec.exclude {
+		let exclude_result = if let Some(tr) = &self.spec.exclude {
 			log::trace!("  Processing exclude rules");
-			return Some(match tr {
+			Some(match tr {
 				TokenRuleExclude::All(ls) => self.exclude_all(labels, ls, specs),
 			})
 		} else {
-			log::trace!("  NO exclude rules")
-		}
+			log::trace!("  NO exclude rules");
+			None
+		};
 
-		if let Some(tr) = &self.spec.require {
+		let require_result = if let Some(tr) = &self.spec.require {
 			log::trace!("  Processing require rules");
-			return Some(match tr {
+			Some(match tr {
 				TokenRuleRequire::None(ls) => self.require_none(labels, ls, specs),
 				TokenRuleRequire::One(ls) => self.require_one(labels, ls.clone(), specs),
 				TokenRuleRequire::Some(ls) => self.require_some(labels, ls, specs),
 				TokenRuleRequire::All(ls) => self.require_all(labels, ls, specs),
 			})
 		} else {
-			log::trace!("  NO require rules")
-		}
+			log::trace!("  NO require rules");
+			None
+		};
 
-		None
+		match (exclude_result, require_result) {
+			(None, None) => None,
+			(a @ Some(_), None) => a,
+			(None, b @ Some(_)) => b,
+			(Some(a), Some(b)) => Some(a && b),
+		}
 	}
 }
 
@@ -213,7 +220,7 @@ impl Rule {
 /// - **when** the rule should be applied
 /// - what [LabelMatch](super::label_match::LabelMatch) are **require**d
 /// - what [LabelMatch](super::label_match::LabelMatch) are **exclude**d
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct RuleSpec {
 	pub when: Option<TokenRuleWhen>,
 	pub require: Option<TokenRuleRequire>,
@@ -672,5 +679,27 @@ spec:
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2"), specs));
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, A1, A2, T9, X1"), specs));
 		assert_eq!(None, rule.check(&LabelIdSet::from_str("X1"), specs));
+	}
+
+	#[test]
+	fn test_rule_check_require_one_p_and_no_x() {
+		let mut specs = Specs::load_test_default().unwrap();
+		let require_one_p = TokenRuleRequire::One(LabelMatchSet::from_str("P*"));
+		let exclude_all_x = TokenRuleExclude::All(LabelMatchSet::from_str("X*"));
+
+		let spec =
+			RuleSpec { when: None, require: Some(require_one_p), exclude: Some(exclude_all_x) };
+
+		let rule = Rule {
+			name: "test rule".to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+		};
+
+		specs.rules = vec![rule.clone()];
+
+		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("A1, B1"), &specs));
 	}
 }

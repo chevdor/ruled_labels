@@ -113,10 +113,13 @@ impl Tests {
 				log::debug!("aggregated result for the test: {:?}", aggregated_result);
 				log::debug!("expected   result for the test: {:?}", test_spec.expected);
 
-				ResultPrinter::new(&test_spec.name, TestResult::from(aggregated_result))
-					.with_indent(4)
-					.with_color(color)
-					.print();
+				ResultPrinter::new(
+					&test_spec.name,
+					TestResult::from(test_spec.expected == aggregated_result),
+				)
+				.with_indent(4)
+				.with_color(color)
+				.print();
 				test_spec.expected == aggregated_result
 			})
 			.fold(true, |acc, x| acc && x);

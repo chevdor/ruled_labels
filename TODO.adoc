@@ -4,7 +4,7 @@
 [.column]
 - testing! testing! testing!
 - code cleanup
-- Release ci including deb packaging
+- Release ci
 - Add a damn license :)
 
 [.column]
