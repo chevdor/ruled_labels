@@ -82,7 +82,7 @@ There is currenly no binary package so you need to use `cargo` to build and inst
 
         ▶️ Running test  1: Pass
           Expected to PASS
-          Running checks on 4 labels: X1, B0, X2, X3
+          Running checks on 4 labels: X1, X3, X2, B0
             PASSED  Some topics (X labels)
             PASSED  Exactly one visibility label
             PASSED  Note Worthy need one Prio label

@@ -1,3 +1,5 @@
+//! Definitions of [TokenRuleWhen], [TokenRuleRequire] and [TokenRuleExclude].
+
 use super::label_match_set::LabelMatchSet;
 use serde::{Deserialize, Serialize};
 

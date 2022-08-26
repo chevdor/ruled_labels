@@ -34,7 +34,10 @@ _build_slides:
   cd doc/slides
   just _build
 
-doc: _usage md _build_slides
+_rust_doc:
+  cargo doc --no-deps
+
+doc: _usage md _build_slides _rust_doc
 
 # Run the specs thru the tera template
 gen_doc:

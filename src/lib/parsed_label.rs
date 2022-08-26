@@ -1,10 +1,14 @@
+//! [ParsedLabel] and [LabelId]
+
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 pub type CodeNumber = u8;
 
-/// The `LabelId` is the initial letter + number from a Label.
-/// For instance, the `LabelId` for `B0-silent` is `B0`.
+/// The [LabelId] is the initial letter + number from a Label.
+/// For instance, the [LabelId] for `B0-silent` is `B0`.
+///
+/// WARNING: Do not confuse [LabelId] with [LabelMatch](super::label_match::LabelMatch).
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LabelId {
 	pub letter: char,

@@ -1,3 +1,5 @@
+//! This module defines all the claps (cli) options and flags.
+
 use clap::{crate_authors, crate_version, Parser, Subcommand};
 use std::path::PathBuf;
 

@@ -1,11 +1,15 @@
+//! Definition for [Specs] and [Label]
+
 use crate::lib::{
-	set_to_string,
+	common::set_to_string,
 	test_result::{ResultPrinter, TestResult},
 };
 use anyhow::{Context, Result};
 
-pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
+#[cfg(test)]
 pub const TEST_SPEC_FILE: &str = "./specs.yaml";
+#[cfg(test)]
+pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
 
 use super::{
 	label_match_set::LabelMatchSet,
@@ -17,6 +21,8 @@ use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display, fs, path::PathBuf};
 
+/// [Specs] contains some meta information as well as the definitions of the [Label] set and
+/// the list of [Rule].
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Specs {
 	pub name: String,
@@ -28,6 +34,8 @@ pub struct Specs {
 	pub rules: Vec<Rule>,
 }
 
+// TODO: move that away from here
+/// The basic definition of a [Label], just as in `glabel`.
 #[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct Label {
 	pub name: String,
@@ -61,6 +69,7 @@ impl Specs {
 		Ok(res)
 	}
 
+	#[cfg(test)]
 	pub fn load_default() -> Result<Self> {
 		Self::load(DEFAULT_SPEC_FILE)
 	}
@@ -82,7 +91,7 @@ impl Specs {
 			labels.len(),
 			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
 		);
-		const WIDTH: usize = 8;
+		// const WIDTH: usize = 8;
 
 		let res: Vec<Option<bool>> = self
 			.rules

@@ -1,4 +1,6 @@
-use super::spec::Specs;
+//! Definitions of [Tests], [TestSpec] and [TestSpecs].
+
+use super::specs::Specs;
 use crate::lib::{
 	parsed_label::LabelId,
 	test_result::{ResultPrinter, TestResult},

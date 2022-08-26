@@ -1,10 +1,15 @@
+//! `ruled-labels` is a cli helping with Github labels verifications based on a simple rule engine.
+//! The rules are defined using a yaml file. `ruled-labels` allows running a single check but also
+//! running a set of test cases to validate label set against your rules and ensuring your rules
+//! meet all your expectations.
+
 mod lib;
 mod opts;
 
 use crate::lib::{
 	parsed_label::LabelId,
 	rule::Rule,
-	spec::Specs,
+	specs::Specs,
 	test_result::{ResultPrinter, TestResult},
 	tests::Tests,
 };
@@ -13,6 +18,7 @@ use env_logger::Env;
 use opts::*;
 use std::{collections::HashSet, env, error::Error};
 
+/// This is the entry point of the `ruled-labels` cli.
 fn main() -> Result<(), Box<dyn Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
 	log::info!("Running {} v{}", crate_name!(), crate_version!());

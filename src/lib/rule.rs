@@ -1,6 +1,7 @@
-use crate::lib::set_to_string;
+//! Definition of the [Rule] structure. A [Rule] defines the requirements for a set of [LabelId].
 
-use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, spec::Specs, token_rule::*};
+use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, specs::Specs, token_rule::*};
+use crate::lib::common::set_to_string;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display};
 use Iterator;
@@ -17,6 +18,8 @@ fn default_false() -> bool {
 	false
 }
 
+/// This struct defines a [Rule]. It contains mainly some meta information
+/// as well as the [RuleSpec] which describe the specs of the [Rule].
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Rule {
 	pub name: String,
@@ -48,6 +51,7 @@ impl Display for Rule {
 
 impl Rule {
 	/// Create a new named empty rule with no specs.
+	#[cfg(test)]
 	pub fn new(name: &str, spec: RuleSpec) -> Self {
 		Self { name: name.to_string(), description: None, id: None, disabled: false, spec }
 	}
@@ -205,6 +209,10 @@ impl Rule {
 	}
 }
 
+/// The [RuleSpec] describes:
+/// - **when** the rule should be applied
+/// - what [LabelMatch](super::label_match::LabelMatch) are **require**d
+/// - what [LabelMatch](super::label_match::LabelMatch) are **exclude**d
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct RuleSpec {
 	pub when: Option<TokenRuleWhen>,
@@ -278,7 +286,7 @@ mod test_label_set {
 mod test_rule {
 	#![allow(non_snake_case)]
 	use super::*;
-	use crate::lib::{label_id_set::LabelIdSet, label_match_set::LabelMatchSet, spec::*};
+	use crate::lib::{label_id_set::LabelIdSet, label_match_set::LabelMatchSet, specs::*};
 
 	#[test]
 	fn test_token_rule_deserialize() {

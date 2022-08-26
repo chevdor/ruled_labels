@@ -1,9 +1,13 @@
+//! Definitions of [ResultPrinter] and [TestResult].
+
 use std::fmt::Display;
 use termion::color;
 
 pub const WIDTH: usize = 7; // Length of SKIPPED
 pub const DEFAULT_INDENT: usize = 0;
 
+/// The [ResultPrinter] helps printing those `PASS foo` and `FAIL bar`
+/// with or without color.
 #[derive(Debug)]
 pub struct ResultPrinter {
 	pub title: String,
@@ -15,6 +19,7 @@ pub struct ResultPrinter {
 	indent: usize,
 }
 
+/// The variants for a [TestResult].
 #[derive(Clone, Debug)]
 pub enum TestResult {
 	Skipped,
@@ -45,10 +50,10 @@ impl ResultPrinter {
 		self
 	}
 
-	pub fn with_message_skipped(mut self, msg: &str) -> Self {
-		self.message_skipped = Some(msg.to_string());
-		self
-	}
+	// pub fn with_message_skipped(mut self, msg: &str) -> Self {
+	// 	self.message_skipped = Some(msg.to_string());
+	// 	self
+	// }
 
 	pub fn with_indent(mut self, indent: usize) -> Self {
 		self.indent = indent;

@@ -1,3 +1,4 @@
+#![cfg(test)]
 use super::parsed_label::LabelId;
 use std::collections::HashSet;
 
@@ -6,6 +7,12 @@ use std::collections::HashSet;
 pub struct LabelIdSet;
 
 impl LabelIdSet {
+	/// Helper to create a `HashSet<LabelId>` from a string containing
+	/// comma separated label ids.
+	/// ## example:
+	/// ```
+	/// let set = LabelIdSet::from_str("B0, B1");
+	/// ```
 	pub fn from_str(s: &str) -> HashSet<LabelId> {
 		s.split(',')
 			.map(|s| {

@@ -1,8 +1,10 @@
+//! [LabelMatch] implementation.
+
 use super::parsed_label::LabelId;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-/// An type to describe one or a set of Labels
+/// A type to describe one or a set of Labels
 /// either specifying it or providing a regexp matching several
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct LabelMatch(String);

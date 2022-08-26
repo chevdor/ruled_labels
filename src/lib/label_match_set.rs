@@ -1,14 +1,21 @@
-use crate::lib::set_to_string;
+//! [LabelMatchSet] imoplementation.
 
-use super::{label_match::LabelMatch, parsed_label::LabelId, spec::Specs};
+use super::{label_match::LabelMatch, parsed_label::LabelId, specs::Specs};
+use crate::lib::common::set_to_string;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display};
 
-/// A Vec of `LabelMatch`
+/// A [HashSet] of [LabelMatch]. It allows describing a list of
+/// [LabelId] or patterns that will expand in such a list.
+/// ## example:
+/// ```
+/// let lms = LabelMatchSet::from_str("B1, X*");
+/// ```
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct LabelMatchSet(HashSet<LabelMatch>);
 
 impl LabelMatchSet {
+	#[cfg(test)]
 	pub fn from_str(s: &str) -> Self {
 		let res: HashSet<LabelMatch> = s
 			.split(',')
@@ -20,6 +27,7 @@ impl LabelMatchSet {
 		LabelMatchSet::from_vec(res)
 	}
 
+	#[cfg(test)]
 	fn from_vec(label_matches: HashSet<LabelMatch>) -> Self {
 		Self(label_matches)
 	}
@@ -83,6 +91,7 @@ impl LabelMatchSet {
 		// }).all(|e| e)
 	}
 
+	#[cfg(test)]
 	pub fn len(&self) -> usize {
 		self.0.len()
 	}

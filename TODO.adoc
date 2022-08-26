@@ -5,10 +5,12 @@
 - testing! testing! testing!
 - code cleanup
 - Release ci including deb packaging
+- Add a damn license :)
 
 [.column]
 - improve `check` hints
 - Support for `Option<Tag>` for `check`
+- regex on tests
 - Support for weight/priority ?
 // end::todo[]
 
