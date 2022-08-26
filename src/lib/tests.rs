@@ -43,7 +43,7 @@ impl Tests {
 	/// for each test.
 	// unnecessary_fold if required in our case
 	#[allow(clippy::unnecessary_fold)]
-	pub fn run(&self, specs: Specs, only: bool, all: bool) {
+	pub fn run(&self, specs: Specs, only: bool, all: bool, color: bool) {
 		let mut test_index = 0;
 
 		// TODO: use `only` and `all` filters to count the effective number of tests
@@ -55,6 +55,7 @@ impl Tests {
 		log::info!("Using specs version: {}", specs.version.to_string());
 		log::debug!("Only: {:?}", only);
 		log::debug!("All : {:?}", all);
+		log::debug!("Color : {:?}", color);
 
 		// Iterate thru all the test specs
 		let overall_result = self
@@ -101,7 +102,7 @@ impl Tests {
 				);
 				let labels: HashSet<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
-				let results = specs.run_checks(&labels, true);
+				let results = specs.run_checks(&labels, true, color);
 
 				let aggregated_result = results.iter().fold(true, |acc, x| match x {
 					Some(v) => acc && *v,
@@ -112,6 +113,7 @@ impl Tests {
 
 				ResultPrinter::new(&test_spec.name, TestResult::from(aggregated_result))
 					.with_indent(4)
+					.with_color(color)
 					.print();
 				test_spec.expected == aggregated_result
 			})
@@ -121,6 +123,7 @@ impl Tests {
 		ResultPrinter::new("OVERALL", result.clone())
 			.with_message_passed("All expectations are OK")
 			.with_message_failed("Some expectations were not OK")
+			.with_color(color)
 			.print();
 
 		match result {

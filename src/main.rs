@@ -31,16 +31,29 @@ fn main() -> Result<(), Box<dyn Error>> {
 			log::debug!("lint: {:#?}", cmd_opts);
 			let specs: Result<Specs, _> = Specs::load(&cmd_opts.spec_file);
 
-			match specs {
-				Ok(_) => {
-					println!("✅ The file {} looks OK", cmd_opts.spec_file);
-					std::process::exit(0)
-				},
-				Err(e) => {
-					println!("❌ The file {} contains errors", cmd_opts.spec_file);
-					eprintln!("{:?}", e);
-					std::process::exit(1)
-				},
+			let result = specs.is_ok();
+			// match specs {
+			// 	Ok(_) => true
+			// 		// println!("✅ The file {} looks OK", cmd_opts.spec_file);
+			// 		// std::process::exit(0)
+			// 	// },
+			// 	Err(e) => fa
+			// 		// println!("❌ The file {} contains errors", cmd_opts.spec_file);
+			// 		// eprintln!("{:?}", e);
+			// 		// std::process::exit(1)
+			// 	},
+			// }
+
+			ResultPrinter::new("Lint Result", TestResult::from(result))
+				.with_message_passed(&format!("The file {} looks OK", cmd_opts.spec_file))
+				.with_message_failed(&format!("The file {} contains errors", cmd_opts.spec_file))
+				.with_color(!opts.no_color)
+				.print();
+
+			if result {
+				std::process::exit(0)
+			} else {
+				std::process::exit(1)
 			}
 		},
 
@@ -50,7 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			let label_ids: HashSet<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
-			let res = specs.run_checks(&label_ids, true);
+			let res = specs.run_checks(&label_ids, true, !opts.no_color);
 			let aggregated_result = res.iter().fold(true, |acc, x| match x {
 				Some(v) => acc && *v,
 				None => acc,
@@ -71,7 +84,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 				specs.version,
 				label_ids.iter().map(|l| l.to_string()).collect::<Vec<String>>().join(", ")
 			);
-			ResultPrinter::new(&title, TestResult::from(aggregated_result)).print();
+			ResultPrinter::new(&title, TestResult::from(aggregated_result))
+				.with_color(!opts.no_color)
+				.print();
 
 			if aggregated_result {
 				std::process::exit(0)
@@ -102,7 +117,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 			// 	specs.rules.len()
 			// );
 
-			tests.run(specs, cmd_opts.only, cmd_opts.all);
+			tests.run(specs, cmd_opts.only, cmd_opts.all, !opts.no_color);
 			Ok(())
 		},
 	}

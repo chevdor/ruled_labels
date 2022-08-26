@@ -10,6 +10,12 @@ pub struct Opts {
 	// pub json: bool,
 	#[clap(subcommand)]
 	pub subcmd: SubCommand,
+
+	/// Output without any coloring, this is useful
+	/// for documentation and CI system where the color code
+	/// pollute the output.
+	#[clap(long, global = true)]
+	pub no_color: bool,
 }
 
 /// You can find all available commands below.

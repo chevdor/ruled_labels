@@ -11,6 +11,7 @@ pub struct ResultPrinter {
 	pub message_passed: Option<String>,
 	pub message_failed: Option<String>,
 	pub message_skipped: Option<String>,
+	color: bool,
 	indent: usize,
 }
 
@@ -30,6 +31,7 @@ impl ResultPrinter {
 			message_failed: None,
 			message_skipped: None,
 			indent: DEFAULT_INDENT,
+			color: true,
 		}
 	}
 
@@ -53,7 +55,13 @@ impl ResultPrinter {
 		self
 	}
 
+	pub fn with_color(mut self, color: bool) -> Self {
+		self.color = color;
+		self
+	}
+
 	pub fn print(&self) {
+		log::debug!("Printing with color = {:?}", self.color);
 		println!("{}", self);
 	}
 }
@@ -77,30 +85,30 @@ impl From<Option<bool>> for TestResult {
 	}
 }
 
-impl Display for TestResult {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		match self {
-			TestResult::Skipped => f.write_fmt(format_args!(
-				"{}{:<WIDTH$}{}",
-				color::Fg(color::Cyan),
-				"SKIPPED",
-				color::Fg(color::Reset)
-			)),
-			TestResult::Passed => f.write_fmt(format_args!(
-				"{}{:<WIDTH$}{}",
-				color::Fg(color::Green),
-				"PASSED",
-				color::Fg(color::Reset)
-			)),
-			TestResult::Failed => f.write_fmt(format_args!(
-				"{}{:<WIDTH$}{}",
-				color::Fg(color::Red),
-				"FAILED",
-				color::Fg(color::Reset)
-			)),
-		}
-	}
-}
+// impl Display for TestResult {
+// 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+// 		match self {
+// 			TestResult::Skipped => f.write_fmt(format_args!(
+// 				"{}{:<WIDTH$}{}",
+// 				color::Fg(color::Cyan),
+// 				"SKIPPED",
+// 				color::Fg(color::Reset)
+// 			)),
+// 			TestResult::Passed => f.write_fmt(format_args!(
+// 				"{}{:<WIDTH$}{}",
+// 				color::Fg(color::Green),
+// 				"PASSED",
+// 				color::Fg(color::Reset)
+// 			)),
+// 			TestResult::Failed => f.write_fmt(format_args!(
+// 				"{}{:<WIDTH$}{}",
+// 				color::Fg(color::Red),
+// 				"FAILED",
+// 				color::Fg(color::Reset)
+// 			)),
+// 		}
+// 	}
+// }
 
 impl Display for ResultPrinter {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -126,17 +134,39 @@ impl Display for ResultPrinter {
 		};
 
 		let indent = self.indent;
+
+		let output = match self.result {
+			TestResult::Skipped => format!(
+				"{}{:<WIDTH$}{}",
+				if self.color { color::Fg(color::Cyan).to_string() } else { "".into() },
+				"SKIPPED",
+				if self.color { color::Fg(color::Reset).to_string() } else { "".into() }
+			),
+			TestResult::Passed => format!(
+				"{}{:<WIDTH$}{}",
+				if self.color { color::Fg(color::Green).to_string() } else { "".into() },
+				"PASSED",
+				if self.color { color::Fg(color::Reset).to_string() } else { "".into() },
+			),
+			TestResult::Failed => format!(
+				"{}{:<WIDTH$}{}",
+				if self.color { color::Fg(color::Red).to_string() } else { "".into() },
+				"FAILED",
+				if self.color { color::Fg(color::Reset).to_string() } else { "".into() }
+			),
+		};
+
 		match self.result {
 			TestResult::Skipped => f.write_fmt(format_args!(
 				"{:>indent$}{} {}{}{}",
 				"",
-				self.result,
-				color::Fg(color::LightBlack),
+				output,
+				if self.color { color::Fg(color::LightBlack).to_string() } else { "".into() },
 				message,
-				color::Fg(color::Reset)
+				if self.color { color::Fg(color::Reset).to_string() } else { "".into() }
 			)),
 			TestResult::Failed | TestResult::Passed =>
-				f.write_fmt(format_args!("{:>indent$}{} {}", "", self.result, message)),
+				f.write_fmt(format_args!("{:>indent$}{} {}", "", output, message)),
 		}
 	}
 }

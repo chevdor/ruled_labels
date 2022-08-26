@@ -71,7 +71,12 @@ impl Specs {
 	}
 
 	/// This functions loops thru all rules and check the rule outcome.
-	pub fn run_checks(&self, labels: &HashSet<LabelId>, run_skipped: bool) -> Vec<Option<bool>> {
+	pub fn run_checks(
+		&self,
+		labels: &HashSet<LabelId>,
+		run_skipped: bool,
+		color: bool,
+	) -> Vec<Option<bool>> {
 		println!(
 			"      Running checks on {:?} labels: {}",
 			labels.len(),
@@ -87,6 +92,7 @@ impl Specs {
 				let check_result = rule.check(labels, self);
 				ResultPrinter::new(&rule.name, TestResult::from(check_result))
 					.with_indent(8)
+					.with_color(color)
 					.print();
 				check_result
 			})

@@ -8,12 +8,13 @@
 - Release ci including deb packaging
 
 [.column]
-- add `--no-color`
 - improve `check` hints
 - Support for `Option<Tag>` for `check`
 - Support for weight/priority
 // end::todo[]
 
+=== DOne
+- add `--no-color`
 - [x] get check to work
 - [x] deal with all todos
 - [x] get test to pass

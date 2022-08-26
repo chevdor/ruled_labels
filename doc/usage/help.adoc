@@ -3,11 +3,13 @@ ruled-labels 0.1.0
 This utility allows checking labels based on rules
 
 USAGE:
-    ruled-labels <SUBCOMMAND>
+    ruled-labels [OPTIONS] <SUBCOMMAND>
 
 OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help        Print help information
+        --no-color    Output without any coloring, this is useful for documentation and CI system
+                      where the color code pollute the output
+    -V, --version     Print version information
 
 SUBCOMMANDS:
     check    Check label set against the rules

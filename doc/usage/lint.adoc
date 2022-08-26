@@ -1,1 +1,1 @@
-✅ The file specs.yaml looks OK
+PASSED  The file specs.yaml looks OK
