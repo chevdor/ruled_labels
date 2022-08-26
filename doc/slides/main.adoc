@@ -64,6 +64,8 @@ Use cases:
 
 `letter`|`digit` [- `description`]
 
+`B0-Silent` == `B0` == `B0-Foobar`
+
 == What you do NOT need
 
 // [%step]
@@ -71,15 +73,16 @@ Use cases:
 - cargo / +rust+
 - bash
 
-NOTE: atm cargo is still needed to install
+NOTE: Atm `cargo` is still needed to install
 
 == Features
 
 === Setup / Specs
 
 // [%step]
-- define rules in a `yaml` file
+- define rules in a `specs.yaml` file
 - check (lint) the yaml specs
+- define tests in a `tests.yaml` file
 - run test scenarii
 
 === CI / Check
@@ -87,7 +90,7 @@ NOTE: atm cargo is still needed to install
 // [%step]
 - check labels applied on an issue or a PR
 - list the current rules
-- generate documentation
+- generate documentation (https://github.com/chevdor/tera-cli[tera])
 
 == Required files
 
@@ -95,7 +98,7 @@ NOTE: atm cargo is still needed to install
 - Required: `specs.yaml`
 - Optionnal: `tests.yaml`
 
-WARNING: File names and paths need to be provided if the defaults are not used.
+WARNING: File names and paths need to be provided **if the defaults are not used**.
 
 == Getting started
 
@@ -103,7 +106,7 @@ WARNING: File names and paths need to be provided if the defaults are not used.
 
 === `glabel` install
 
-    cargo install --git https://github.com/chevdor/glabel
+    cargo install --locked --git https://github.com/chevdor/glabel
 
 NOTE: Rust toolchain required **for the moment**
 
@@ -119,7 +122,8 @@ include::./specs.yaml[lines=1..13]
 
 === Install {name}
 
-    cargo install -- git https://github.com/chevdor/ruled_labels
+    cargo install --locked \
+      --git https://github.com/chevdor/ruled_labels
 
 NOTE: Rust toolchain required **for the moment**
 
@@ -196,6 +200,8 @@ include::../usage/test.adoc[]
 
 == Rule Engine & Syntax
 
+include::../../doc/vscode_yaml.adoc[leveloffset=+1]
+
 === `specs.yaml`: Header
 
 [source,yaml]
@@ -217,7 +223,12 @@ include::../../specs.yaml[tags=labels]
 include::../../specs.yaml[tags=rules]
 ----
 
-include::../../doc/vscode_yaml.adoc[leveloffset=+1]
+=== `specs.yaml`: Rules
+
+[source,rust]
+----
+include::../../src/lib/token_rule.rs[]
+----
 
 === Rule anathomy: min
 

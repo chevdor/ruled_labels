@@ -1,6 +1,6 @@
 == Vscode yaml
 
-Add to the yaml pluggin config:
+Add to the https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml[yaml pluggin] (by RedHat) config:
 
 [source,json]
 ----
