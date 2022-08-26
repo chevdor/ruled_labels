@@ -1,0 +1,7 @@
+
+== Test
+
+[source,yaml]
+----
+include::../tests.yaml[]
+----

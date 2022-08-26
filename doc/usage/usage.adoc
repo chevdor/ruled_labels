@@ -1,0 +1,37 @@
+
+= Usage
+
+== Help
+
+[source, bash]
+----
+include::help.adoc[]
+----
+
+== Lint
+
+[source, bash]
+----
+include::lint.adoc[]
+----
+
+== List
+
+[source, bash]
+----
+include::list.adoc[]
+----
+
+== Test
+
+[source, bash]
+----
+include::test.adoc[]
+----
+
+== Check
+
+[source, bash]
+----
+include::check.adoc[]
+----

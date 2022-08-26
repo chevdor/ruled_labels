@@ -1,0 +1,10 @@
+
+== Intro
+
+{cli} is compatible with the `glabel` yaml format and allow specifying additionnal rules regarding the labels. Those rules are described in a yaml file.
+
+{cli} can handle:
+
+- the list of labels and their properties
+- the label rules
+- a description of test cases

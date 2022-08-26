@@ -3,18 +3,16 @@
 // tag::todo[]
 [.column]
 - testing! testing! testing!
-- more documentation
 - code cleanup
 - Release ci including deb packaging
 
 [.column]
 - improve `check` hints
 - Support for `Option<Tag>` for `check`
-- Support for weight/priority
+- Support for weight/priority ?
 // end::todo[]
 
-=== DOne
-- add `--no-color`
+=== Done
 - [x] get check to work
 - [x] deal with all todos
 - [x] get test to pass

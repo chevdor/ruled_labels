@@ -1,0 +1,9 @@
+
+== Features
+
+- rule based engine
+- rules defined as yaml
+- `lint`: the lint command helps you validate your yaml files
+- `list`: show a summary of your rules
+- `test`: You can define a set of tests scenarii to check against your specs to ensure you did not leave anything behind
+- `check`: CI can call this command to check a set of labels against your specs & rules

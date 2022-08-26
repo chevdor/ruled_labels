@@ -1,0 +1,6 @@
+
+== Glossary
+
+In order to understand the terminology and what are `LabelMatch`, `LabelMatchSet`, `Labels`, `LabelId`, etc... please refer to the Rust documenation. You can generate and open it using:
+
+    cargo doc --no-deps --open

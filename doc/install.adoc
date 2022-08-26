@@ -1,0 +1,9 @@
+
+== Install
+
+NOTE: There is currenly no binary package so you need to use `cargo` to build and install {cli} on your system.
+
+[subs="attributes+"]
+----
+cargo install --locked --git {repo}
+----

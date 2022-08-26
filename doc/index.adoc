@@ -1,0 +1,18 @@
+
+include::intro.adoc[]
+
+include::install.adoc[]
+
+include::features.adoc[]
+
+include::usage/usage.adoc[leveloffset=+1]
+
+include::vscode_yaml.adoc[]
+
+== Yaml specs
+
+include::rules_yaml.adoc[leveloffset=+1]
+
+include::tests_yaml.adoc[leveloffset=+1]
+
+include::glossary.adoc[]

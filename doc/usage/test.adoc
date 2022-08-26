@@ -3,7 +3,7 @@ Specs file : specs.yaml
 
     ▶️ Running test  1: Pass
       Expected to PASS
-      Running checks on 4 labels: X1, X2, X3, B0
+      Running checks on 4 labels: X1, B0, X2, X3
         PASSED  Some topics (X labels)
         PASSED  Exactly one visibility label
         PASSED  Note Worthy need one Prio label

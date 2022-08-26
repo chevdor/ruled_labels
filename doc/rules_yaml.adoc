@@ -1,0 +1,7 @@
+
+== Rules
+
+[source,yaml]
+----
+include::../specs.yaml[]
+----

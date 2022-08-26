@@ -1,8 +1,8 @@
-      Running checks on 2 labels: A1, B0
+      Running checks on 2 labels: B0, A1
         FAILED  Some topics (X labels)
         PASSED  Exactly one visibility label
         PASSED  Note Worthy need one Prio label
         PASSED  Note Worthy implies no J label
         PASSED  Exclude all Ds
         FAILED  Require all of J
-FAILED  chevdor/glabel v0.1.0 for labels A1, B0
+FAILED  chevdor/glabel v0.1.0 for labels B0, A1

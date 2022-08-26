@@ -29,15 +29,20 @@ _usage:
   cargo run -q -- check -l B0 A1 --no-color > doc/usage/check.adoc || true
   cargo run -q -- test --no-color > doc/usage/test.adoc || true
 
-slides:
+_build_slides:
   #!/usr/bin/env bash
   cd doc/slides
   just _build
 
-doc: _usage md slides
+doc: _usage md _build_slides
 
 # Run the specs thru the tera template
 gen_doc:
   #!/usr/bin/env bash
   FILE=specs
   tera $FILE.yaml -t templates/template.md.tera > $FILE.md
+
+# Open the slides in a browser
+slides:
+  #!/usr/bin/env bash
+  just -d doc/slides --justfile doc/slides/justfile present
