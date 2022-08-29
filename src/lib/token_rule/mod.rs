@@ -1,4 +1,5 @@
-//! Definitions of [when::TokenRuleWhen], [require::TokenRuleRequire] and [exclude::TokenRuleExclude].
+//! Definitions of [when::TokenRuleWhen], [require::TokenRuleRequire] and
+//! [exclude::TokenRuleExclude].
 
 pub mod exclude;
 pub mod require;
