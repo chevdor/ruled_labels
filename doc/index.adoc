@@ -3,6 +3,8 @@ include::intro.adoc[]
 
 include::install.adoc[]
 
+include::docker.adoc[]
+
 include::features.adoc[]
 
 include::usage/usage.adoc[leveloffset=+1]

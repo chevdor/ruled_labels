@@ -5,7 +5,6 @@
 - testing! testing! testing!
 - code cleanup
 - Release ci
-- Add a damn license :)
 
 [.column]
 - improve `check` hints
@@ -15,6 +14,7 @@
 // end::todo[]
 
 === Done
+- Add a damn license :)
 - [x] get check to work
 - [x] deal with all todos
 - [x] get test to pass

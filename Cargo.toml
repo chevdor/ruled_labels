@@ -2,6 +2,7 @@
 name = "ruled-labels"
 version = "0.1.0"
 edition = "2021"
+license-file = "LICENSE"
 
 [dependencies]
 clap = { version = "3.2", features = ["derive", "env", "unicode", "cargo"] }

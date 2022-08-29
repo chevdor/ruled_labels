@@ -1,4 +1,5 @@
 VERSION := `toml get Cargo.toml package.version | jq -r`
+CLI_NAME := `toml get Cargo.toml package.name | jq -r`
 export TAG:=`toml get Cargo.toml "package.version" | jq -r .`
 
 # List available commands
@@ -23,11 +24,13 @@ md:
   asciidoctor -b docbook -a leveloffset=+1 -o - README_src.adoc | pandoc   --markdown-headings=atx --wrap=preserve -t markdown_strict -f docbook - > README.md
 
 _usage:
+  #!/usr/bin/env bash
+  unset RUST_LOG
   cargo run -q -- --help --no-color > doc/usage/help.adoc
   cargo run -q -- lint --no-color > doc/usage/lint.adoc
   cargo run -q -- list --no-color > doc/usage/list.adoc
   cargo run -q -- check -l B0 A1 --no-color > doc/usage/check.adoc || true
-  cargo run -q -- test --no-color > doc/usage/test.adoc || true
+  cargo run -q -- test --all --no-color > doc/usage/test.adoc || true
 
 _build_slides:
   #!/usr/bin/env bash
@@ -49,3 +52,13 @@ gen_doc:
 slides:
   #!/usr/bin/env bash
   just -d doc/slides --justfile doc/slides/justfile present
+
+# Build and tag the docker images
+docker_build:
+  docker build -t {{ CLI_NAME }} -t chevdor/{{ CLI_NAME }} -t chevdor/{{ CLI_NAME }}:{{ VERSION }} .
+  docker images | grep {{ CLI_NAME }}
+
+# Push the docker image
+docker_push:
+  docker push chevdor/{{ CLI_NAME }}
+  docker push chevdor/{{ CLI_NAME }}:{{ VERSION }}

@@ -20,6 +20,32 @@ There is currenly no binary package so you need to use `cargo` to build and inst
 
     cargo install --locked --git https://github.com/chevdor/ruled_labels
 
+## Docker
+
+If you prefer not having to install Rust & Cargo and have Docker installed, you may prefer to run a dockerized version of `ruled-labels`. The next chapters explain how to proceed.
+
+### Run
+
+Docker commands can end up quite lenghty so you may like to set an alias:
+
+        alias ruled-labels='docker run --rm -it ruled-labels'
+
+After setting this alias, you may use `ruled-labels` by simply invoking the `ruled-labels` command:
+
+        ruled-labels --version
+
+If you prefer a shorter a command, you may set an alias for `rl` instead of `ruled-labels`.
+
+This is out of the scope of this documentation but note that you cannot just invoke `ruled-labels` check and expect it to work on your local `specs.yaml`. For that to work, you need to mount your `specs.yaml` into the container. That looks like this:
+
+        docker run --rm -it -v $PWD/specs.yaml:/usr/local/bin/specs.yaml <literal>ruled-labels</literal> list
+
+### Build
+
+You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
+
+        docker build -t ruled-labels .
+
 ## Features
 
 -   rule based engine
@@ -74,22 +100,60 @@ There is currenly no binary package so you need to use `cargo` to build and inst
      - Note Worthy implies no J label (b_excludes_j)
      - Exclude all Ds
      - Require all of J
+     - Require 1 P and no X
 
 ## Test
 
     Tests specs: tests.yaml
     Specs file : specs.yaml
 
-        ▶️ Running test  1: Pass
-          Expected to PASS
-          Running checks on 4 labels: X1, X3, X2, B0
+        ▶️ Running test  1: Fail
+          Expected to FAIL
+          Running checks on 3 labels: B1, X1, B0
             PASSED  Some topics (X labels)
-            PASSED  Exactly one visibility label
-            PASSED  Note Worthy need one Prio label
+            FAILED  Exactly one visibility label
+            SKIPPED Note Worthy need one Prio label
             PASSED  Note Worthy implies no J label
             PASSED  Exclude all Ds
             FAILED  Require all of J
+            FAILED  Require 1 P and no X
+        PASSED  Fail
+
+        ▶️ Running test  2: Pass
+          Expected to PASS
+          Running checks on 4 labels: B0, X2, X1, X3
+            PASSED  Some topics (X labels)
+            PASSED  Exactly one visibility label
+            FAILED  Note Worthy need one Prio label
+            PASSED  Note Worthy implies no J label
+            PASSED  Exclude all Ds
+            FAILED  Require all of J
+            FAILED  Require 1 P and no X
         FAILED  Pass
+
+        ▶️ Running test  3: Missing topics
+          Expected to FAIL
+          Running checks on 1 labels: B0
+            FAILED  Some topics (X labels)
+            PASSED  Exactly one visibility label
+            FAILED  Note Worthy need one Prio label
+            PASSED  Note Worthy implies no J label
+            PASSED  Exclude all Ds
+            FAILED  Require all of J
+            FAILED  Require 1 P and no X
+        PASSED  Missing topics
+
+        ▶️ Running test  4: Fail
+          Expected to FAIL
+          Running checks on 2 labels: B1, A1
+            FAILED  Some topics (X labels)
+            PASSED  Exactly one visibility label
+            FAILED  Note Worthy need one Prio label
+            PASSED  Note Worthy implies no J label
+            PASSED  Exclude all Ds
+            FAILED  Require all of J
+            FAILED  Require 1 P and no X
+        PASSED  Fail
     FAILED  Some expectations were not OK
 
 ## Check
@@ -97,15 +161,16 @@ There is currenly no binary package so you need to use `cargo` to build and inst
           Running checks on 2 labels: B0, A1
             FAILED  Some topics (X labels)
             PASSED  Exactly one visibility label
-            PASSED  Note Worthy need one Prio label
+            FAILED  Note Worthy need one Prio label
             PASSED  Note Worthy implies no J label
             PASSED  Exclude all Ds
             FAILED  Require all of J
+            FAILED  Require 1 P and no X
     FAILED  chevdor/glabel v0.1.0 for labels B0, A1
 
 ## Vscode yaml
 
-Add to the yaml pluggin config:
+Add to the [yaml pluggin](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) (by RedHat) config:
 
     "yaml.customTags": [
         "!none_of sequence",
@@ -183,6 +248,8 @@ Add to the yaml pluggin config:
 
       - name: Exactly one visibility label
         id: b_rules
+        tags: [ CI ]
+        priority: 1000
         description: |
           This rule ensures we have a single visibility label.
           It is important to void conflicts such as having a PR
@@ -195,6 +262,8 @@ Add to the yaml pluggin config:
 
       - name: Note Worthy need one Prio label
         id: b_need_p
+        tags: [v2]
+        priority: 100
         spec:
           # when we have one of the B labels
           when: !one_of
@@ -226,6 +295,12 @@ Add to the yaml pluggin config:
           require: !all_of
             - J*
 
+      - name: Require 1 P and no X
+        spec:
+          require: !one_of
+            - P*
+          exclude: !all_of ["X1", "X2"]
+
 ## Test
 
     name: Name of the test
@@ -241,7 +316,6 @@ Add to the yaml pluggin config:
         expected: false
 
       - name: Pass
-        only: true
         labels: [ B0-silent, X1-bar, X2-bar, X3-foobar ]
         expected: true
 
@@ -251,8 +325,25 @@ Add to the yaml pluggin config:
           - B0-silent
         expected: false
 
+      - name: Fail
+        only: true
+        labels:
+          - A1
+          - B1
+        expected: false
+
 ## Glossary
 
 In order to understand the terminology and what are `LabelMatch`, `LabelMatchSet`, `Labels`, `LabelId`, etc…​ please refer to the Rust documenation. You can generate and open it using:
 
     cargo doc --no-deps --open
+
+## Licence
+
+    Copyright 2021-2022 - Wilfried Kopp aka. Chevdor <chevdor@gmail.com>
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

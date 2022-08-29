@@ -8,4 +8,5 @@ Rules:
  - Note Worthy implies no J label (b_excludes_j)
  - Exclude all Ds
  - Require all of J
+ - Require 1 P and no X
 

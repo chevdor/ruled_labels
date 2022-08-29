@@ -8,3 +8,9 @@
 image::https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml/badge.svg?branch=master[link="https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml"]
 
 include::doc/index.adoc[]
+
+== Licence
+
+----
+include::LICENSE[]
+----
