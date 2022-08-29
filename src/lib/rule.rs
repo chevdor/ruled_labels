@@ -15,13 +15,15 @@ use Iterator;
 // 	100_u8
 // }
 
-fn default_none() -> Option<String> {
+fn default_none<T>() -> Option<T> {
 	None
 }
 
 fn default_false() -> bool {
 	false
 }
+
+pub type Tag = String;
 
 /// This struct defines a [Rule]. It contains mainly some meta information
 /// as well as the [RuleSpec] which describe the specs of the [Rule].
@@ -37,6 +39,9 @@ pub struct Rule {
 
 	#[serde(default = "default_false")]
 	pub disabled: bool,
+
+	#[serde(default = "default_none")]
+	pub tags: Option<Vec<Tag>>,
 
 	// #[serde(default = "default_priority")]
 	// pub priority: u8,
@@ -58,7 +63,14 @@ impl Rule {
 	/// Create a new named empty rule with no specs.
 	#[cfg(test)]
 	pub fn new(name: &str, spec: RuleSpec) -> Self {
-		Self { name: name.to_string(), description: None, id: None, disabled: false, spec }
+		Self {
+			name: name.to_string(),
+			description: None,
+			id: None,
+			disabled: false,
+			spec,
+			tags: None,
+		}
 	}
 
 	/// `label` cannot be contained in `label_set`.
@@ -232,6 +244,7 @@ impl Default for Rule {
 			disabled: false,
 			// priority: 100,
 			spec,
+			tags: None,
 		}
 	}
 }
@@ -311,6 +324,7 @@ mod test_rule {
 			spec: rs,
 			id: None,
 			disabled: false,
+			tags: None,
 			//
 		};
 
@@ -356,6 +370,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		// println!("rule = {:?}", rule);
@@ -375,6 +390,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		// println!("rule = {:?}", rule);
@@ -394,6 +410,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		// println!("rule = {:?}", rule);
@@ -413,6 +430,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		// println!("rule = {:?}", rule);
@@ -432,6 +450,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 			//
 		};
 
@@ -476,6 +495,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		let res = rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs);
@@ -496,6 +516,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
@@ -517,6 +538,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
@@ -539,6 +561,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, B1, B2"), specs));
@@ -561,6 +584,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
@@ -583,6 +607,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
@@ -605,6 +630,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(false), rule.check(&LabelIdSet::from_str("B0, T8"), specs));
@@ -635,6 +661,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		assert_eq!(Some(true), rule.check(&LabelIdSet::from_str("B0, A1"), specs));
@@ -660,6 +687,7 @@ spec:
 			id: None,
 			disabled: false,
 			spec,
+			tags: None,
 		};
 
 		specs.rules = vec![rule.clone()];

@@ -116,7 +116,7 @@ impl Tests {
 				}
 				let labels: HashSet<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
-				let results = specs.run_checks(&labels, true, color, dev);
+				let results = specs.run_checks(&labels, true, color, dev, None);
 
 				let aggregated_result = results.iter().fold(true, |acc, x| match x {
 					Some(v) => acc && *v,

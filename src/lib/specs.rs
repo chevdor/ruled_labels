@@ -11,7 +11,11 @@ pub const TEST_SPEC_FILE: &str = "./specs.yaml";
 #[cfg(test)]
 pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
 
-use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, rule::Rule};
+use super::{
+	label_match_set::LabelMatchSet,
+	parsed_label::LabelId,
+	rule::{Rule, Tag},
+};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display, fs, path::PathBuf};
@@ -81,18 +85,26 @@ impl Specs {
 		run_skipped: bool,
 		color: bool,
 		verbose: bool,
+		tags: Option<Vec<Tag>>,
 	) -> Vec<Option<bool>> {
 		log::debug!(
 			"     ‰ Running checks on {:?} labels: {}",
 			labels.len(),
 			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
 		);
-		// const WIDTH: usize = 8;
 
 		let res: Vec<Option<bool>> = self
 			.rules
 			.iter()
 			.filter(|rule| !rule.disabled || run_skipped)
+			.filter(|rule| {
+				match (&tags, &rule.tags) {
+					(None, None) | (None, Some(_)) => true, // no cli filter
+					(Some(_), None) => false,
+					(Some(o), Some(r)) =>
+						r.iter().filter(|rule_tag| o.contains(rule_tag)).count() >= o.len(),
+				}
+			})
 			.map(|rule| {
 				let check_result = rule.check(labels, self);
 				if verbose {
@@ -186,6 +198,7 @@ mod test_specs {
 			id: None,
 			disabled: false,
 			spec: rs,
+			tags: None,
 		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];
@@ -221,6 +234,7 @@ mod test_specs {
 			id: None,
 			disabled: false,
 			spec: rs,
+			tags: None,
 		};
 		// let rules = Rules { rules: vec![rule] };
 		let rules = vec![rule];

@@ -1,9 +1,8 @@
-      Running checks on 2 labels: B0, A1
-        FAILED  Some topics (X labels)
-        PASSED  Exactly one visibility label
-        FAILED  Note Worthy need one Prio label
-        PASSED  Note Worthy implies no J label
-        PASSED  Exclude all Ds
-        FAILED  Require all of J
-        FAILED  Require 1 P and no X
-FAILED  chevdor/glabel v0.1.0 for labels B0, A1
+        FAILED  Some topics (X labels) | You need to include some of the J2, X1, X2 label(s)
+        PASSED  Exactly one visibility label | You need to include one of the B* label(s)
+        FAILED  Note Worthy need one Prio label | Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+        PASSED  Note Worthy implies no J label | You need to exclude all of the T* label(s)
+        PASSED  Exclude all Ds | You need to exclude all of the D* label(s)
+        FAILED  Require all of J | You need to include all of the J* label(s)
+        FAILED  Require 1 P and no X | You need to include one of the P* label(s) and you need to exclude all of the X1, X2 label(s)
+FAILED  chevdor/glabel v0.1.0 for labels A1, B0

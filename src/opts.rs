@@ -4,6 +4,8 @@ use clap::{crate_authors, crate_version, Parser, Subcommand};
 use regex::Regex;
 use std::path::PathBuf;
 
+use crate::lib::rule::Tag;
+
 /// This utility allows checking labels based on rules
 #[derive(Parser)]
 #[clap(version = crate_version!(), author = crate_authors!())]
@@ -71,6 +73,11 @@ pub struct CheckOpts {
 	/// Show details about the rules of the faulty tests
 	#[clap(long)]
 	pub faulty: bool,
+
+	/// If you pass optional tags here, only the checks containing
+	/// **all** those tags will run
+	#[clap(short, long, multiple = true, takes_value = true)]
+	pub tags: Option<Vec<Tag>>,
 }
 
 /// Run tests using rules and a test set
@@ -92,7 +99,8 @@ pub struct TestOpts {
 	#[clap(long)]
 	pub all: bool,
 
-	/// By passing an optional filter, you can limit which tests will run
+	/// By passing an optional filter, you can limit which tests will run.
+	/// You can pass any valid regexp.
 	#[clap(short, long)]
 	pub filter: Option<Regex>,
 }

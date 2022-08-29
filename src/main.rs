@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			let label_ids: HashSet<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
-			let res = specs.run_checks(&label_ids, true, !opts.no_color, opts.dev);
+			let res = specs.run_checks(&label_ids, true, !opts.no_color, opts.dev, cmd_opts.tags);
 			let aggregated_result = res.iter().fold(true, |acc, x| match x {
 				Some(v) => acc && *v,
 				None => acc,
@@ -63,7 +63,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			if cmd_opts.faulty {
 				let faulty_rules: Vec<&Rule> = specs.find_faulty(res);
-				// println!("faulty_rules = {:?}", faulty_rules);
 				if !faulty_rules.is_empty() {
 					println!("faulty_rules:");
 					faulty_rules.iter().for_each(|rule| println!("{:#?}", rule));

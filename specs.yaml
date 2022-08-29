@@ -77,7 +77,7 @@ rules:
 
   - name: Note Worthy need one Prio label
     id: b_need_p
-    tags: [v2]
+    tags: [v2, CI]
     priority: 100
     spec:
       # when we have one of the B labels

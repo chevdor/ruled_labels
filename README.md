@@ -64,7 +64,7 @@ You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
 
 ## Help
 
-    ruled-labels 0.1.0
+    ruled-labels 0.2.0
 
     This utility allows checking labels based on rules
 
@@ -72,6 +72,7 @@ You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
         ruled-labels [OPTIONS] <SUBCOMMAND>
 
     OPTIONS:
+        -d, --dev         The output is more developer oriented
         -h, --help        Print help information
             --no-color    Output without any coloring, this is useful for documentation and CI system
                           where the color code pollute the output
@@ -108,65 +109,42 @@ You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
     Specs file : specs.yaml
 
         ▶️ Running test  1: Fail
-          Expected to FAIL
-          Running checks on 3 labels: B1, X1, B0
-            PASSED  Some topics (X labels)
-            FAILED  Exactly one visibility label
-            SKIPPED Note Worthy need one Prio label
-            PASSED  Note Worthy implies no J label
-            PASSED  Exclude all Ds
-            FAILED  Require all of J
-            FAILED  Require 1 P and no X
+    You need to include one of the B* label(s)
+    You need to include all of the J* label(s)
+    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
         PASSED  Fail
 
         ▶️ Running test  2: Pass
-          Expected to PASS
-          Running checks on 4 labels: B0, X2, X1, X3
-            PASSED  Some topics (X labels)
-            PASSED  Exactly one visibility label
-            FAILED  Note Worthy need one Prio label
-            PASSED  Note Worthy implies no J label
-            PASSED  Exclude all Ds
-            FAILED  Require all of J
-            FAILED  Require 1 P and no X
+    Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+    You need to include all of the J* label(s)
+    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
         FAILED  Pass
 
         ▶️ Running test  3: Missing topics
-          Expected to FAIL
-          Running checks on 1 labels: B0
-            FAILED  Some topics (X labels)
-            PASSED  Exactly one visibility label
-            FAILED  Note Worthy need one Prio label
-            PASSED  Note Worthy implies no J label
-            PASSED  Exclude all Ds
-            FAILED  Require all of J
-            FAILED  Require 1 P and no X
+    You need to include some of the X1, X2, J2 label(s)
+    Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+    You need to include all of the J* label(s)
+    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
         PASSED  Missing topics
 
         ▶️ Running test  4: Fail
-          Expected to FAIL
-          Running checks on 2 labels: B1, A1
-            FAILED  Some topics (X labels)
-            PASSED  Exactly one visibility label
-            FAILED  Note Worthy need one Prio label
-            PASSED  Note Worthy implies no J label
-            PASSED  Exclude all Ds
-            FAILED  Require all of J
-            FAILED  Require 1 P and no X
+    You need to include some of the X1, X2, J2 label(s)
+    Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+    You need to include all of the J* label(s)
+    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
         PASSED  Fail
     FAILED  Some expectations were not OK
 
 ## Check
 
-          Running checks on 2 labels: B0, A1
-            FAILED  Some topics (X labels)
-            PASSED  Exactly one visibility label
-            FAILED  Note Worthy need one Prio label
-            PASSED  Note Worthy implies no J label
-            PASSED  Exclude all Ds
-            FAILED  Require all of J
-            FAILED  Require 1 P and no X
-    FAILED  chevdor/glabel v0.1.0 for labels B0, A1
+            FAILED  Some topics (X labels) | You need to include some of the J2, X1, X2 label(s)
+            PASSED  Exactly one visibility label | You need to include one of the B* label(s)
+            FAILED  Note Worthy need one Prio label | Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+            PASSED  Note Worthy implies no J label | You need to exclude all of the T* label(s)
+            PASSED  Exclude all Ds | You need to exclude all of the D* label(s)
+            FAILED  Require all of J | You need to include all of the J* label(s)
+            FAILED  Require 1 P and no X | You need to include one of the P* label(s) and you need to exclude all of the X1, X2 label(s)
+    FAILED  chevdor/glabel v0.1.0 for labels A1, B0
 
 ## Vscode yaml
 
@@ -262,7 +240,7 @@ Add to the [yaml pluggin](https://marketplace.visualstudio.com/items?itemName=re
 
       - name: Note Worthy need one Prio label
         id: b_need_p
-        tags: [v2]
+        tags: [v2, CI]
         priority: 100
         spec:
           # when we have one of the B labels

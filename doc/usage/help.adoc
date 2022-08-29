@@ -1,4 +1,4 @@
-ruled-labels 0.1.0
+ruled-labels 0.2.0
 
 This utility allows checking labels based on rules
 
@@ -6,6 +6,7 @@ USAGE:
     ruled-labels [OPTIONS] <SUBCOMMAND>
 
 OPTIONS:
+    -d, --dev         The output is more developer oriented
     -h, --help        Print help information
         --no-color    Output without any coloring, this is useful for documentation and CI system
                       where the color code pollute the output

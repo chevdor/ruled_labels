@@ -2,50 +2,28 @@ Tests specs: tests.yaml
 Specs file : specs.yaml
 
     ▶️ Running test  1: Fail
-      Expected to FAIL
-      Running checks on 3 labels: B1, X1, B0
-        PASSED  Some topics (X labels)
-        FAILED  Exactly one visibility label
-        SKIPPED Note Worthy need one Prio label
-        PASSED  Note Worthy implies no J label
-        PASSED  Exclude all Ds
-        FAILED  Require all of J
-        FAILED  Require 1 P and no X
+You need to include one of the B* label(s)
+You need to include all of the J* label(s)
+You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
     PASSED  Fail
 
     ▶️ Running test  2: Pass
-      Expected to PASS
-      Running checks on 4 labels: B0, X2, X1, X3
-        PASSED  Some topics (X labels)
-        PASSED  Exactly one visibility label
-        FAILED  Note Worthy need one Prio label
-        PASSED  Note Worthy implies no J label
-        PASSED  Exclude all Ds
-        FAILED  Require all of J
-        FAILED  Require 1 P and no X
+Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+You need to include all of the J* label(s)
+You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
     FAILED  Pass
 
     ▶️ Running test  3: Missing topics
-      Expected to FAIL
-      Running checks on 1 labels: B0
-        FAILED  Some topics (X labels)
-        PASSED  Exactly one visibility label
-        FAILED  Note Worthy need one Prio label
-        PASSED  Note Worthy implies no J label
-        PASSED  Exclude all Ds
-        FAILED  Require all of J
-        FAILED  Require 1 P and no X
+You need to include some of the X1, X2, J2 label(s)
+Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+You need to include all of the J* label(s)
+You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
     PASSED  Missing topics
 
     ▶️ Running test  4: Fail
-      Expected to FAIL
-      Running checks on 2 labels: B1, A1
-        FAILED  Some topics (X labels)
-        PASSED  Exactly one visibility label
-        FAILED  Note Worthy need one Prio label
-        PASSED  Note Worthy implies no J label
-        PASSED  Exclude all Ds
-        FAILED  Require all of J
-        FAILED  Require 1 P and no X
+You need to include some of the X1, X2, J2 label(s)
+Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
+You need to include all of the J* label(s)
+You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
     PASSED  Fail
 FAILED  Some expectations were not OK

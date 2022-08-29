@@ -29,7 +29,7 @@ _usage:
   cargo run -q -- --help --no-color > doc/usage/help.adoc
   cargo run -q -- lint --no-color > doc/usage/lint.adoc
   cargo run -q -- list --no-color > doc/usage/list.adoc
-  cargo run -q -- check -l B0 A1 --no-color > doc/usage/check.adoc || true
+  cargo run -q -- check --dev -l B0 A1 --no-color > doc/usage/check.adoc || true
   cargo run -q -- test --all --no-color > doc/usage/test.adoc || true
 
 _build_slides:
