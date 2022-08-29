@@ -1,7 +1,12 @@
 //! Definition of the [Rule] structure. A [Rule] defines the requirements for a set of [LabelId].
 
-use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, specs::Specs, token_rule::*};
-use crate::lib::common::set_to_string;
+use super::{
+	label_match_set::LabelMatchSet, parsed_label::LabelId, rule_spec::RuleSpec, specs::Specs,
+};
+use crate::lib::{
+	common::set_to_string, exclude::TokenRuleExclude, require::TokenRuleRequire,
+	when::TokenRuleWhen,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display};
 use Iterator;
@@ -216,24 +221,6 @@ impl Rule {
 	}
 }
 
-/// The [RuleSpec] describes:
-/// - **when** the rule should be applied
-/// - what [LabelMatch](super::label_match::LabelMatch) are **require**d
-/// - what [LabelMatch](super::label_match::LabelMatch) are **exclude**d
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct RuleSpec {
-	pub when: Option<TokenRuleWhen>,
-	pub require: Option<TokenRuleRequire>,
-	pub exclude: Option<TokenRuleExclude>,
-}
-
-#[cfg(test)]
-impl Default for RuleSpec {
-	fn default() -> Self {
-		Self { require: None, exclude: None, when: None }
-	}
-}
-
 #[cfg(test)]
 impl Default for Rule {
 	fn default() -> Self {
@@ -293,7 +280,10 @@ mod test_label_set {
 mod test_rule {
 	#![allow(non_snake_case)]
 	use super::*;
-	use crate::lib::{label_id_set::LabelIdSet, label_match_set::LabelMatchSet, specs::*};
+	use crate::lib::{
+		exclude::TokenRuleExclude, label_id_set::LabelIdSet, label_match_set::LabelMatchSet,
+		require::TokenRuleRequire, specs::*, when::TokenRuleWhen,
+	};
 
 	#[test]
 	fn test_token_rule_deserialize() {
@@ -307,22 +297,6 @@ mod test_rule {
 	fn test_token_rule_serialize() {
 		let label_set = LabelMatchSet::from_str("B1");
 		let rs: TokenRuleRequire = TokenRuleRequire::One(label_set);
-		println!("{}", serde_yaml::to_string(&rs).unwrap());
-	}
-
-	// #[test]
-	// fn test_serialize_rule_type() {
-	// 	let rs: RuleType = RuleType::Require(Token { one_of: Some()});
-	// 		println!("{}", serde_yaml::to_string(&rs).unwrap());
-	// }
-
-	#[test]
-	fn test_rule_spec_serialize() {
-		let label_set = LabelMatchSet::from_str("B1");
-
-		let token_rule = TokenRuleRequire::One(label_set);
-		let rs: RuleSpec = RuleSpec { require: Some(token_rule), exclude: None, when: None };
-
 		println!("{}", serde_yaml::to_string(&rs).unwrap());
 	}
 
@@ -342,16 +316,6 @@ mod test_rule {
 
 		println!("{}", serde_yaml::to_string(&rule).unwrap());
 	}
-
-	// 	#[test]
-	// 	fn test_deserialize_rule_spec() {
-	// 		let yaml = r#"require: !one_of
-	// - B*
-	// "#;
-	// 		println!("== yaml:\n{}", yaml);
-	// 		let rs: RuleSpec = serde_yaml::from_str(&yaml).unwrap();
-	// 		println!("rs = {:?}", rs);
-	// 	}
 
 	#[test]
 	fn test_rule_deserialize() {

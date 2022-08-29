@@ -18,6 +18,10 @@ pub struct Opts {
 	/// pollute the output.
 	#[clap(long, global = true)]
 	pub no_color: bool,
+
+	/// Show more output
+	#[clap(short, long, global = true)]
+	pub verbose: bool,
 }
 
 /// You can find all available commands below.

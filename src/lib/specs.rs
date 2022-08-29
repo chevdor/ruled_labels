@@ -11,12 +11,7 @@ pub const TEST_SPEC_FILE: &str = "./specs.yaml";
 #[cfg(test)]
 pub const DEFAULT_SPEC_FILE: &str = "specs.yaml";
 
-use super::{
-	label_match_set::LabelMatchSet,
-	parsed_label::LabelId,
-	// parser::Parser,
-	rule::Rule,
-};
+use super::{label_match_set::LabelMatchSet, parsed_label::LabelId, rule::Rule};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Display, fs, path::PathBuf};
@@ -85,9 +80,10 @@ impl Specs {
 		labels: &HashSet<LabelId>,
 		run_skipped: bool,
 		color: bool,
+		verbose: bool,
 	) -> Vec<Option<bool>> {
-		println!(
-			"      Running checks on {:?} labels: {}",
+		log::debug!(
+			"     ‰ Running checks on {:?} labels: {}",
 			labels.len(),
 			labels.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(", ")
 		);
@@ -99,10 +95,19 @@ impl Specs {
 			.filter(|rule| !rule.disabled || run_skipped)
 			.map(|rule| {
 				let check_result = rule.check(labels, self);
-				ResultPrinter::new(&rule.name, TestResult::from(check_result))
-					.with_indent(8)
-					.with_color(color)
-					.print();
+				if verbose {
+					let title = format!("{} | {}", &rule.name, rule.spec.to_user_tip());
+					ResultPrinter::new(&title, TestResult::from(check_result))
+						.with_indent(8)
+						.with_color(color)
+						.print();
+				} else {
+					if let Some(output) = check_result {
+						if !output {
+							println!("{}", rule.spec.to_user_tip());
+						}
+					}
+				}
 				check_result
 			})
 			.collect();
@@ -167,7 +172,9 @@ impl Specs {
 #[cfg(test)]
 mod test_specs {
 	use super::*;
-	use crate::lib::{label_id_set::LabelIdSet, rule::*, token_rule::*};
+	use crate::lib::{
+		label_id_set::LabelIdSet, require::TokenRuleRequire, rule::*, rule_spec::RuleSpec,
+	};
 
 	#[test]
 	fn test_spec_serialize() {

@@ -3,7 +3,10 @@
 use super::{label_match::LabelMatch, parsed_label::LabelId, specs::Specs};
 use crate::lib::common::set_to_string;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt::Display};
+use std::{
+	collections::{hash_set::Iter, HashSet},
+	fmt::Display,
+};
 
 /// A [HashSet] of [LabelMatch]. It allows describing a list of
 /// [LabelId] or patterns that will expand in such a list.
@@ -25,6 +28,10 @@ impl LabelMatchSet {
 			})
 			.collect();
 		LabelMatchSet::from_vec(res)
+	}
+
+	pub fn iter(&self) -> Iter<LabelMatch> {
+		self.0.iter()
 	}
 
 	#[cfg(test)]
@@ -103,17 +110,27 @@ impl Display for LabelMatchSet {
 	}
 }
 
-// impl Iterator for LabelSet {
-// 	type Item = LabelMatch;
+// impl IntoIterator for LabelMatchSet {
+//     type Item = LabelMatch;
+//     type IntoIter = LabelMatchIntoIterator;
 
-// 	fn next(&mut self) -> Option<Self::Item> {
-// 		let mut iter = self.0.iter();
-// 		println!("next...");
-// 		match iter.next() {
-// 			None => None,
-// 			Some(x) => Some(x.clone()),
-// 		}
+//     fn into_iter(self) -> Self::IntoIter {
+//         self.0.iter()
+//     }
+
+// fn next(&mut self) -> Option<Self::Item> {
+// 	let mut iter = self.0.iter();
+// 	println!("next...");
+// 	match iter.next() {
+// 		None => None,
+// 		Some(x) => Some(x.clone()),
 // 	}
+// }
+// }
+
+// pub struct LabelMatchIntoIterator {
+//     label_match: LabelMatch,
+//     index: usize,
 // }
 
 // impl From<Vec<LabelMatch>> for LabelMatchSet {

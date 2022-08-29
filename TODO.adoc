@@ -7,13 +7,13 @@
 - Release ci
 
 [.column]
-- improve `check` hints
 - Support for `Option<Tag>` for `check`
 - regex on tests
 - Support for weight/priority ?
 // end::todo[]
 
 === Done
+- improve `check` hints
 - Add a damn license :)
 - [x] get check to work
 - [x] deal with all todos
