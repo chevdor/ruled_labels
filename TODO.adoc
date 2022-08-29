@@ -8,11 +8,11 @@
 
 [.column]
 - Support for `Option<Tag>` for `check`
-- regex on tests
 - Support for weight/priority ?
 // end::todo[]
 
 === Done
+- regex on tests
 - improve `check` hints
 - Add a damn license :)
 - [x] get check to work

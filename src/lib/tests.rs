@@ -6,6 +6,7 @@ use crate::lib::{
 	test_result::{ResultPrinter, TestResult},
 };
 use anyhow::{Context, Result};
+use regex::Regex;
 use serde::Deserialize;
 use std::{collections::HashSet, fs, path::PathBuf};
 
@@ -52,7 +53,7 @@ impl Tests {
 		all: bool,
 		color: bool,
 		dev: bool,
-		filter: &Option<String>,
+		filter: &Option<Regex>,
 	) {
 		let mut test_index = 0;
 
@@ -95,7 +96,7 @@ impl Tests {
 					}
 				}
 			})
-			.filter(|spec| if let Some(f) = filter { spec.name.contains(f) } else { true })
+			.filter(|spec| if let Some(f) = filter { f.is_match(&spec.name) } else { true })
 			.map(|test_spec| {
 				test_index += 1;
 				// TODO: Bring back the `test_count` once fixed and considers `all` and

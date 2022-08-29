@@ -1,6 +1,7 @@
 //! This module defines all the claps (cli) options and flags.
 
 use clap::{crate_authors, crate_version, Parser, Subcommand};
+use regex::Regex;
 use std::path::PathBuf;
 
 /// This utility allows checking labels based on rules
@@ -93,5 +94,5 @@ pub struct TestOpts {
 
 	/// By passing an optional filter, you can limit which tests will run
 	#[clap(short, long)]
-	pub filter: Option<String>,
+	pub filter: Option<Regex>,
 }
