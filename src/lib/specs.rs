@@ -101,13 +101,12 @@ impl Specs {
 						.with_indent(8)
 						.with_color(color)
 						.print();
-				} else {
-					if let Some(output) = check_result {
-						if !output {
-							println!("{}", rule.spec.to_user_tip());
-						}
+				} else if let Some(output) = check_result {
+					if !output {
+						println!("{}", rule.spec.to_user_tip());
 					}
 				}
+
 				check_result
 			})
 			.collect();

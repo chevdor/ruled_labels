@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 			let label_ids: HashSet<LabelId> =
 				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
-			let res = specs.run_checks(&label_ids, true, !opts.no_color, opts.verbose);
+			let res = specs.run_checks(&label_ids, true, !opts.no_color, opts.dev);
 			let aggregated_result = res.iter().fold(true, |acc, x| match x {
 				Some(v) => acc && *v,
 				None => acc,
@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 				}
 			}
 
-			if opts.verbose {
+			if opts.dev {
 				let title = format!(
 					"{} v{} for labels {}",
 					specs.name,
@@ -111,7 +111,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 			// 	specs.rules.len()
 			// );
 
-			tests.run(specs, cmd_opts.only, cmd_opts.all, !opts.no_color, opts.verbose);
+			tests.run(
+				specs,
+				cmd_opts.only,
+				cmd_opts.all,
+				!opts.no_color,
+				opts.dev,
+				&cmd_opts.filter,
+			);
 			Ok(())
 		},
 	}

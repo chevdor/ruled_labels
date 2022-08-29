@@ -19,9 +19,9 @@ pub struct Opts {
 	#[clap(long, global = true)]
 	pub no_color: bool,
 
-	/// Show more output
+	/// The output is more developer oriented
 	#[clap(short, long, global = true)]
-	pub verbose: bool,
+	pub dev: bool,
 }
 
 /// You can find all available commands below.
@@ -90,4 +90,8 @@ pub struct TestOpts {
 	/// Run ALL tests, even those marked as skip
 	#[clap(long)]
 	pub all: bool,
+
+	/// By passing an optional filter, you can limit which tests will run
+	#[clap(short, long)]
+	pub filter: Option<String>,
 }

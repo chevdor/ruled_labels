@@ -45,7 +45,15 @@ impl Tests {
 	/// for each test.
 	// unnecessary_fold if required in our case
 	#[allow(clippy::unnecessary_fold)]
-	pub fn run(&self, specs: Specs, only: bool, all: bool, color: bool, verbose: bool) {
+	pub fn run(
+		&self,
+		specs: Specs,
+		only: bool,
+		all: bool,
+		color: bool,
+		dev: bool,
+		filter: &Option<String>,
+	) {
 		let mut test_index = 0;
 
 		// TODO: use `only` and `all` filters to count the effective number of tests
@@ -87,6 +95,7 @@ impl Tests {
 					}
 				}
 			})
+			.filter(|spec| if let Some(f) = filter { spec.name.contains(f) } else { true })
 			.map(|test_spec| {
 				test_index += 1;
 				// TODO: Bring back the `test_count` once fixed and considers `all` and
@@ -95,7 +104,7 @@ impl Tests {
 				// 	test_index, tests_count, test_spec.name
 				// );
 				println!("\n    ▶️ Running test {:>2?}: {}", test_index, test_spec.name);
-				if verbose {
+				if dev {
 					println!(
 						"      Expected to {}",
 						match test_spec.expected {
@@ -106,7 +115,7 @@ impl Tests {
 				}
 				let labels: HashSet<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
-				let results = specs.run_checks(&labels, true, color, verbose);
+				let results = specs.run_checks(&labels, true, color, dev);
 
 				let aggregated_result = results.iter().fold(true, |acc, x| match x {
 					Some(v) => acc && *v,
