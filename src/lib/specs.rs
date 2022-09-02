@@ -15,6 +15,7 @@ use super::{
 	label_match_set::LabelMatchSet,
 	parsed_label::LabelId,
 	rule::{Rule, Tag},
+	rule_filter::RuleFilter,
 };
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -86,6 +87,7 @@ impl Specs {
 		color: bool,
 		verbose: bool,
 		tags: Option<Vec<Tag>>,
+		rule_filter: &Option<RuleFilter>,
 	) -> Vec<Option<bool>> {
 		log::debug!(
 			"     ‰ Running checks on {:?} labels: {}",
@@ -97,6 +99,17 @@ impl Specs {
 			.rules
 			.iter()
 			.filter(|rule| !rule.disabled || run_skipped)
+			.filter(|rule| {
+				if let Some(filter) = rule_filter {
+					if let Some(rule_id) = rule.id.as_ref() {
+						filter.id.contains(rule_id)
+					} else {
+						false
+					}
+				} else {
+					true
+				}
+			})
 			.filter(|rule| {
 				match (&tags, &rule.tags) {
 					(None, None) | (None, Some(_)) => true, // no cli filter

@@ -24,6 +24,7 @@ fn default_false() -> bool {
 }
 
 pub type Tag = String;
+pub type RuleId = String;
 
 /// This struct defines a [Rule]. It contains mainly some meta information
 /// as well as the [RuleSpec] which describe the specs of the [Rule].
@@ -35,7 +36,7 @@ pub struct Rule {
 	pub description: Option<String>,
 
 	#[serde(default = "default_none")]
-	pub id: Option<String>,
+	pub id: Option<RuleId>,
 
 	#[serde(default = "default_false")]
 	pub disabled: bool,

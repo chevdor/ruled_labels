@@ -2,27 +2,54 @@ name: Name of the test
 spec_file: specs.yaml
 
 specs:
-  - name: Fail
-    skip: true
+  - name: Pass
+    only: true
+    labels:
+      - B0-silent
+      - X1-bar
+      - X2-bar
+      - X3-foobar
+      - J1
+      - J2
+      - P2
+    expected: true
+
+  - name: Fail - b_rules
+    filter:
+      id: [ b_rules ]
     labels:
       - B1-note_worthy
       - B0-silent
-      - X1-foo
     expected: false
 
-  - name: Pass
-    labels: [ B0-silent, X1-bar, X2-bar, X3-foobar ]
-    expected: true
-
-  - name: Missing topics
+  - name: Fail - some_topics
+    filter:
+      id: [ some_topics ]
     skip: true
     labels:
       - B0-silent
     expected: false
 
-  - name: Fail
-    only: true
+  - name: Fail - b_need_p
+    filter:
+      id: [ b_need_p ]
     labels:
-      - A1
       - B1
+    expected: false
+
+  - name: Fail - b1_excludes_j
+    filter:
+      id: [ b1_excludes_j ]
+    labels:
+      - B1
+      - J1
+      - J2
+    expected: false
+
+  - name: Fail - b1_excludes_j 2
+    filter:
+      id: [ b1_excludes_j ]
+    labels:
+      - B1
+      - J1
     expected: false

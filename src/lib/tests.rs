@@ -1,6 +1,6 @@
 //! Definitions of [Tests], [TestSpec] and [TestSpecs].
 
-use super::specs::Specs;
+use super::{rule_filter::RuleFilter, specs::Specs};
 use crate::lib::{
 	parsed_label::LabelId,
 	test_result::{ResultPrinter, TestResult},
@@ -30,6 +30,7 @@ pub struct TestSpec {
 	pub description: Option<String>,
 	pub labels: Vec<String>,
 	pub skip: Option<bool>,
+	pub filter: Option<RuleFilter>,
 	pub only: Option<bool>,
 	pub expected: bool,
 }
@@ -116,7 +117,8 @@ impl Tests {
 				}
 				let labels: HashSet<LabelId> =
 					test_spec.labels.clone().iter().map(|s| LabelId::from(s.as_ref())).collect();
-				let results = specs.run_checks(&labels, true, color, dev, None);
+
+				let results = specs.run_checks(&labels, true, color, dev, None, &test_spec.filter);
 
 				let aggregated_result = results.iter().fold(true, |acc, x| match x {
 					Some(v) => acc && *v,

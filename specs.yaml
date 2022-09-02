@@ -54,6 +54,7 @@ labels:
 # tag::rules[]
 rules:
   - name: Some topics (X labels)
+    id: some_topics
     spec:
       require: !some_of
         - X1
@@ -91,26 +92,30 @@ rules:
         - P1
 
   - name: Note Worthy implies no J label
-    id: b_excludes_j
+    id: b1_excludes_j
     spec:
-      # when:
-      #   - B*
+      when: !one_of
+        - B1
       exclude: !all_of
-        - T*
+        - J*
 
   - name: Exclude all Ds
+    id: exclude_all_d
     disabled: false   # default
-    priority: 100         # default
+    priority: 100     # default
     spec:
       exclude: !all_of
         - D*
 
   - name: Require all of J
+    ide: require_all_j
     spec:
       require: !all_of
         - J*
 
   - name: Require 1 P and no X
+    id: single_p_no_x
+    disabled: true
     spec:
       require: !one_of
         - P*
