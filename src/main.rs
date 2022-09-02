@@ -16,7 +16,7 @@ use crate::lib::{
 use clap::{crate_name, crate_version, StructOpt};
 use env_logger::Env;
 use opts::*;
-use std::{collections::HashSet, env, error::Error};
+use std::{collections::HashSet, env, error::Error, path::PathBuf};
 
 /// This is the entry point of the `ruled-labels` cli.
 fn main() -> Result<(), Box<dyn Error>> {
@@ -91,11 +91,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 		SubCommand::Test(cmd_opts) => {
 			log::debug!("test: {:#?}", cmd_opts);
 			let tests = Tests::load(&cmd_opts.test_specs)?;
-
+			let specs_path = PathBuf::from(&cmd_opts.test_specs);
+			let test_file_folder =
+				specs_path.parent().expect("The test specs should be in a folder");
 			let spec_file = if let Some(spec_file) = cmd_opts.spec_file {
 				spec_file
 			} else {
-				tests.spec_file.clone()
+				let t = test_file_folder;
+				t.join(&tests.spec_file)
 			};
 			log::debug!("spec_file: {}", spec_file.display());
 			let specs = Specs::load(&spec_file.display().to_string())?;
