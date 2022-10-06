@@ -39,12 +39,13 @@ Check out the [Usage](#usage) to learn more about the available commands. and op
 In most case, you will not call the check command manually, but let your CI take care of that.
 
 First, you may fetch the labels of your PR:
-API\_BASE=https://api.github.com/repos
-REPO=…​
-GITHUB\_PR=1234
-labels=$( curl -H "Authorization: token $GITHUB\_TOKEN" -s "$API\_BASE/$REPO/pulls/$GITHUB\_PR" | jq '.labels | .\[\] | .name' | tr "\n" ",")
 
-You can now build a string will we pass to the check call:
+    API_BASE=https://api.github.com/repos
+    REPO=...
+    GITHUB_PR=1234
+    labels=$( curl -H "Authorization: token $GITHUB_TOKEN" -s "$API_BASE/$REPO/pulls/$GITHUB_PR" | jq '.labels | .[] | .name' | tr "\n" ",")
+
+You can now remove the leading `,` that is not useful:
 
     labels_args=${labels: :-1}
 
