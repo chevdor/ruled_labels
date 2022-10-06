@@ -1,6 +1,8 @@
 
 include::intro.adoc[]
 
+include::getting-started.adoc[]
+
 include::install.adoc[]
 
 include::docker.adoc[]

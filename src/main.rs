@@ -2,6 +2,16 @@
 //! The rules are defined using a yaml file. `ruled-labels` allows running a single check but also
 //! running a set of test cases to validate label set against your rules and ensuring your rules
 //! meet all your expectations.
+//!
+//! You should check the [README](https://github.com/chevdor/ruled_labels/blob/master/README.md)
+//! of the project to gain a better understanding of what the functions are.
+//!
+//! For a deaper understand of the options you have to call `ruled-labels`, you may check out
+//! the [Opts](opts::Opts) and especially the list of available [SubCommand](opts::SubCommand)s.
+//!
+//! If you are interested in write specs or test files, you can find some information below:
+//! - [Specs](rllib::specs::Specs)
+//! - [Tests](rllib::tests::Tests)
 
 mod opts;
 mod rllib;
@@ -37,8 +47,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 			let specs: Result<Specs, _> = Specs::load(&cmd_opts.spec_file);
 			let result = specs.is_ok();
 			ResultPrinter::new("Lint Result", TestResult::from(result))
-				.with_message_passed(&format!("The file {} looks OK", cmd_opts.spec_file))
-				.with_message_failed(&format!("The file {} contains errors", cmd_opts.spec_file))
+				.with_message_passed(&format!("The file {} looks OK", cmd_opts.spec_file.display()))
+				.with_message_failed(&format!(
+					"The file {} contains errors",
+					cmd_opts.spec_file.display()
+				))
 				.with_color(!opts.no_color)
 				.print();
 
@@ -101,9 +114,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 				t.join(&tests.spec_file)
 			};
 			log::debug!("spec_file: {}", spec_file.display());
-			let specs = Specs::load(&spec_file.display().to_string())?;
+			let specs = Specs::load(&spec_file)?;
 
-			println!("Tests specs: {}", &cmd_opts.test_specs);
+			println!("Tests specs: {}", &cmd_opts.test_specs.display());
 			println!("Specs file : {}", &spec_file.display());
 
 			// TODO: The following is unaccurate as it does not consider that some tests are

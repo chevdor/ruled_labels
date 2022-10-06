@@ -60,10 +60,10 @@ impl Display for Specs {
 }
 
 impl Specs {
-	pub fn load(file_path: &str) -> Result<Self> {
+	pub fn load(file_path: &PathBuf) -> Result<Self> {
 		let s = fs::read_to_string(PathBuf::from(file_path))?;
 		let res = serde_yaml::from_str::<Self>(&s)
-			.with_context(|| format!("Failed deserializing specs from {}", file_path))?;
+			.with_context(|| format!("Failed deserializing specs from {}", file_path.display()))?;
 
 		// Ok(res.attach_ref())
 		Ok(res)
@@ -71,12 +71,12 @@ impl Specs {
 
 	#[cfg(test)]
 	pub fn load_default() -> Result<Self> {
-		Self::load(DEFAULT_SPEC_FILE)
+		Self::load(&PathBuf::from(DEFAULT_SPEC_FILE))
 	}
 
 	#[cfg(test)]
 	pub fn load_test_default() -> Result<Self> {
-		Self::load(TEST_SPEC_FILE)
+		Self::load(&PathBuf::from(TEST_SPEC_FILE))
 	}
 
 	/// This functions loops thru all rules and check the rule outcome.

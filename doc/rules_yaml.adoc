@@ -1,4 +1,5 @@
 
+[[specs]]
 == Rules
 
 [source,yaml]

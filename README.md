@@ -14,6 +14,48 @@
 
 -   a description of test cases
 
+## Getting started
+
+Upon doing the [Install](#install), a new command called `ruled-labels` will be available on your system
+
+The minimum you will need is a [Rules](#specs) file. It is usually called `specs.yml` and `ruled-labels` will find it by default if you are using this name.
+
+Having your [Rules](#specs), you can call `ruled-labels` to check a set of labels. Here is how it looks like:
+
+    ruled-labels check --labels A1,B1
+
+Alternatively, you can also call:
+
+    ruled-labels check -l A1 -l B1
+
+The following calls are NOT valid:
+
+-   `ruled-labels check --labels A1, B1`
+
+-   `ruled-labels check --labels A1 B1`
+
+Check out the [Usage](#usage) to learn more about the available commands. and options.
+
+In most case, you will not call the check command manually, but let your CI take care of that.
+
+First, you may fetch the labels of your PR:
+API\_BASE=https://api.github.com/repos
+REPO=…​
+GITHUB\_PR=1234
+labels=$( curl -H "Authorization: token $GITHUB\_TOKEN" -s "$API\_BASE/$REPO/pulls/$GITHUB\_PR" | jq '.labels | .\[\] | .name' | tr "\n" ",")
+
+You can now build a string will we pass to the check call:
+
+    labels_args=${labels: :-1}
+
+And finally run the check:
+
+    ruled-labels check --dev --labels $labels_args
+
+If you prefer using a docker image, here is how it looks like:
+
+    docker run --rm -i -e labels_args -v $PWD/:$MOUNT $IMAGE check $MOUNT/$CHECK_SPECS --dev --labels $labels_args
+
 ## Install
 
 There is currenly no binary package so you need to use `cargo` to build and install `ruled-labels` on your system.
@@ -217,6 +259,7 @@ Add to the [yaml pluggin](https://marketplace.visualstudio.com/items?itemName=re
     # tag::rules[]
     rules:
       - name: Some topics (X labels)
+        id: some_topics
         spec:
           require: !some_of
             - X1
@@ -254,26 +297,30 @@ Add to the [yaml pluggin](https://marketplace.visualstudio.com/items?itemName=re
             - P1
 
       - name: Note Worthy implies no J label
-        id: b_excludes_j
+        id: b1_excludes_j
         spec:
-          # when:
-          #   - B*
+          when: !one_of
+            - B1
           exclude: !all_of
-            - T*
+            - J*
 
       - name: Exclude all Ds
+        id: exclude_all_d
         disabled: false   # default
-        priority: 100         # default
+        priority: 100     # default
         spec:
           exclude: !all_of
             - D*
 
       - name: Require all of J
+        ide: require_all_j
         spec:
           require: !all_of
             - J*
 
       - name: Require 1 P and no X
+        id: single_p_no_x
+        disabled: true
         spec:
           require: !one_of
             - P*
@@ -285,29 +332,56 @@ Add to the [yaml pluggin](https://marketplace.visualstudio.com/items?itemName=re
     spec_file: specs.yaml
 
     specs:
-      - name: Fail
-        skip: true
+      - name: Pass
+        only: true
+        labels:
+          - B0-silent
+          - X1-bar
+          - X2-bar
+          - X3-foobar
+          - J1
+          - J2
+          - P2
+        expected: true
+
+      - name: Fail - b_rules
+        filter:
+          id: [ b_rules ]
         labels:
           - B1-note_worthy
           - B0-silent
-          - X1-foo
         expected: false
 
-      - name: Pass
-        labels: [ B0-silent, X1-bar, X2-bar, X3-foobar ]
-        expected: true
-
-      - name: Missing topics
+      - name: Fail - some_topics
+        filter:
+          id: [ some_topics ]
         skip: true
         labels:
           - B0-silent
         expected: false
 
-      - name: Fail
-        only: true
+      - name: Fail - b_need_p
+        filter:
+          id: [ b_need_p ]
         labels:
-          - A1
           - B1
+        expected: false
+
+      - name: Fail - b1_excludes_j
+        filter:
+          id: [ b1_excludes_j ]
+        labels:
+          - B1
+          - J1
+          - J2
+        expected: false
+
+      - name: Fail - b1_excludes_j 2
+        filter:
+          id: [ b1_excludes_j ]
+        labels:
+          - B1
+          - J1
         expected: false
 
 ## Glossary
