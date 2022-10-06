@@ -4,7 +4,7 @@ use clap::{crate_authors, crate_version, Parser, Subcommand};
 use regex::Regex;
 use std::path::PathBuf;
 
-use crate::rllib::rule::Tag;
+use crate::rllib::{parsed_label::ParsedLabel, rule::Tag};
 
 /// This utility allows checking labels based on rules
 #[derive(Parser)]
@@ -57,6 +57,25 @@ pub struct LintOpts {
 	pub spec_file: String,
 }
 
+// /// We need this helper to go from a list of labels in the form of
+// /// `A1,B1` to a Vec of Labels. Clap can handle `A1, B1` but not `A1,B1` as it considers
+// /// `A1,B1` as one label which is then parsed as `A1`, dropping `B1` which is unintended.
+// fn parsed_labels_from_string(s: &str) -> Result<Vec<ParsedLabel>> {
+// 	let re: Vec<ParsedLabel> = String::from(s)
+// 		.split(",")
+// 		.into_iter()
+// 		.map(|s| ParsedLabel::try_from(s))
+// 		.filter(|i| i.is_ok())
+// 		.map(|i| i.unwrap())
+// 		.collect();
+
+// 	if re.len() > 0 {
+// 		Ok(vec![])
+// 	} else {
+// 		bail!("Cound not find any label in {}", s)
+// 	}
+// }
+
 /// Check label set against the rules
 #[derive(Debug, Parser)]
 pub struct CheckOpts {
@@ -64,9 +83,11 @@ pub struct CheckOpts {
 	#[clap(index = 1, default_value = "specs.yaml")]
 	pub spec_file: String,
 
-	/// The list of labels
-	#[clap(long, short, required = true, num_args=1..)]
-	pub labels: Vec<String>,
+	/// The list of labels. You may pass then as `-l A1,B1` or `-l A1 -l B1`.
+	///
+	/// NOTE: The following calls are NOT valid: `-l A1, B1` or `-l A1 B1`
+	#[clap(long, short, required = true, num_args=1.., value_delimiter = ',')]
+	pub labels: Vec<ParsedLabel>,
 
 	/// Show details about the rules of the faulty tests
 	#[clap(long)]

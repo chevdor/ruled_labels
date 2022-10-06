@@ -53,8 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 			log::debug!("check: {:#?}", cmd_opts);
 			let specs: Specs = Specs::load(&cmd_opts.spec_file)?;
 
-			let label_ids: HashSet<LabelId> =
-				cmd_opts.labels.iter().map(|s| LabelId::from(s.as_ref())).collect();
+			let label_ids: HashSet<LabelId> = cmd_opts.labels.iter().map(|s| s.id).collect();
 			let res =
 				specs.run_checks(&label_ids, true, !opts.no_color, opts.dev, cmd_opts.tags, &None);
 			let aggregated_result = res.iter().fold(true, |acc, x| match x {
