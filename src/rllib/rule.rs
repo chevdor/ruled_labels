@@ -3,7 +3,7 @@
 use super::{
 	label_match_set::LabelMatchSet, parsed_label::LabelId, rule_spec::RuleSpec, specs::Specs,
 };
-use crate::lib::{
+use crate::rllib::{
 	common::set_to_string, exclude::TokenRuleExclude, require::TokenRuleRequire,
 	when::TokenRuleWhen,
 };
@@ -265,7 +265,7 @@ mod test_rules {
 
 #[cfg(test)]
 mod test_label_set {
-	use crate::lib::{label_match_set::LabelMatchSet, parsed_label::LabelId};
+	use crate::rllib::{label_match_set::LabelMatchSet, parsed_label::LabelId};
 
 	#[test]
 	fn test_from_single() {
@@ -294,7 +294,7 @@ mod test_label_set {
 mod test_rule {
 	#![allow(non_snake_case)]
 	use super::*;
-	use crate::lib::{
+	use crate::rllib::{
 		exclude::TokenRuleExclude, label_id_set::LabelIdSet, label_match_set::LabelMatchSet,
 		require::TokenRuleRequire, specs::*, when::TokenRuleWhen,
 	};

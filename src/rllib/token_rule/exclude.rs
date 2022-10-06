@@ -1,4 +1,4 @@
-use crate::lib::{common::set_to_string, label_match_set::LabelMatchSet};
+use crate::rllib::{common::set_to_string, label_match_set::LabelMatchSet};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 

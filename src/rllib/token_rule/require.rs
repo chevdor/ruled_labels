@@ -1,10 +1,10 @@
 use std::fmt::Display;
 
-use crate::lib::{common::set_to_string, label_match_set::LabelMatchSet};
+use crate::rllib::{common::set_to_string, label_match_set::LabelMatchSet};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub enum TokenRuleWhen {
+pub enum TokenRuleRequire {
 	/// None from the set
 	#[serde(rename = "none_of")]
 	None(LabelMatchSet),
@@ -23,23 +23,23 @@ pub enum TokenRuleWhen {
 	All(LabelMatchSet),
 }
 
-impl Display for TokenRuleWhen {
+impl Display for TokenRuleRequire {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			TokenRuleWhen::All(set) => f.write_fmt(format_args!(
-				"since you have all of the {} label(s)",
+			TokenRuleRequire::All(set) => f.write_fmt(format_args!(
+				"you need to include all of the {} label(s)",
 				set_to_string(set.iter())
 			)),
-			TokenRuleWhen::None(set) => f.write_fmt(format_args!(
-				"since you none of {} label(s)",
+			TokenRuleRequire::None(set) => f.write_fmt(format_args!(
+				"you need to include none of the {} label(s)",
 				set_to_string(set.iter())
 			)),
-			TokenRuleWhen::One(set) => f.write_fmt(format_args!(
-				"since you have one of the {} label(s)",
+			TokenRuleRequire::One(set) => f.write_fmt(format_args!(
+				"you need to include one of the {} label(s)",
 				set_to_string(set.iter())
 			)),
-			TokenRuleWhen::Some(set) => f.write_fmt(format_args!(
-				"since you have some of the {} label(s)",
+			TokenRuleRequire::Some(set) => f.write_fmt(format_args!(
+				"you need to include some of the {} label(s)",
 				set_to_string(set.iter())
 			)),
 		}

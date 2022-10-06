@@ -5,7 +5,7 @@ edition = "2021"
 license-file = "LICENSE"
 
 [dependencies]
-clap = { version = "3.2", features = ["derive", "env", "unicode", "cargo"] }
+clap = { version = "4", features = ["derive", "env", "unicode", "cargo", "color"] }
 env_logger = "0.9"
 futures = "0.3"
 hubcaps = "0.6"

@@ -57,7 +57,7 @@ impl Default for RuleSpec {
 #[cfg(test)]
 mod test_rule_spec {
 	use super::*;
-	use crate::lib::label_match_set::LabelMatchSet;
+	use crate::rllib::label_match_set::LabelMatchSet;
 
 	#[test]
 	fn test_rule_spec_serialize() {

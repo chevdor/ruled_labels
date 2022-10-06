@@ -1,7 +1,7 @@
 //! [LabelMatchSet] imoplementation.
 
 use super::{label_match::LabelMatch, parsed_label::LabelId, specs::Specs};
-use crate::lib::common::set_to_string;
+use crate::rllib::common::set_to_string;
 use serde::{Deserialize, Serialize};
 use std::{
 	collections::{hash_set::Iter, HashSet},
@@ -164,7 +164,7 @@ impl Default for LabelMatchSet {
 
 #[cfg(test)]
 mod test_label_set {
-	use crate::lib::label_id_set::LabelIdSet;
+	use crate::rllib::label_id_set::LabelIdSet;
 
 	use super::*;
 

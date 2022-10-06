@@ -1,6 +1,6 @@
 //! Definition for [Specs] and [Label]
 
-use crate::lib::{
+use crate::rllib::{
 	common::set_to_string,
 	test_result::{ResultPrinter, TestResult},
 };
@@ -196,7 +196,7 @@ impl Specs {
 #[cfg(test)]
 mod test_specs {
 	use super::*;
-	use crate::lib::{
+	use crate::rllib::{
 		label_id_set::LabelIdSet, require::TokenRuleRequire, rule::*, rule_spec::RuleSpec,
 	};
 

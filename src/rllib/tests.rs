@@ -1,7 +1,7 @@
 //! Definitions of [Tests], [TestSpec] and [TestSpecs].
 
 use super::{rule_filter::RuleFilter, specs::Specs};
-use crate::lib::{
+use crate::rllib::{
 	parsed_label::LabelId,
 	test_result::{ResultPrinter, TestResult},
 };

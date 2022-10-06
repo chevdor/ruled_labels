@@ -3,17 +3,17 @@
 //! running a set of test cases to validate label set against your rules and ensuring your rules
 //! meet all your expectations.
 
-mod lib;
 mod opts;
+mod rllib;
 
-use crate::lib::{
+use crate::rllib::{
 	parsed_label::LabelId,
 	rule::Rule,
 	specs::Specs,
 	test_result::{ResultPrinter, TestResult},
 	tests::Tests,
 };
-use clap::{crate_name, crate_version, StructOpt};
+use clap::{crate_name, crate_version, Parser};
 use env_logger::Env;
 use opts::*;
 use std::{collections::HashSet, env, error::Error, path::PathBuf};

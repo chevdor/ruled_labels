@@ -4,14 +4,12 @@ use clap::{crate_authors, crate_version, Parser, Subcommand};
 use regex::Regex;
 use std::path::PathBuf;
 
-use crate::lib::rule::Tag;
+use crate::rllib::rule::Tag;
 
 /// This utility allows checking labels based on rules
 #[derive(Parser)]
 #[clap(version = crate_version!(), author = crate_authors!())]
 pub struct Opts {
-	// /// Output as json
-	// #[clap(short, long, global = true)]
 	// pub json: bool,
 	#[clap(subcommand)]
 	pub subcmd: SubCommand,
@@ -67,7 +65,7 @@ pub struct CheckOpts {
 	pub spec_file: String,
 
 	/// The list of labels
-	#[clap(long, short, required = true, multiple = true)]
+	#[clap(long, short, required = true, num_args=1..)]
 	pub labels: Vec<String>,
 
 	/// Show details about the rules of the faulty tests
@@ -76,7 +74,7 @@ pub struct CheckOpts {
 
 	/// If you pass optional tags here, only the checks containing
 	/// **all** those tags will run
-	#[clap(short, long, multiple = true, takes_value = true)]
+	#[clap(short, long, num_args=0..)]
 	pub tags: Option<Vec<Tag>>,
 }
 
