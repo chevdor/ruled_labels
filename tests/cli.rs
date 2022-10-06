@@ -64,6 +64,18 @@ mod cli_tests {
 		}
 
 		#[test]
+		fn it_calls_check_and_pass_with_comma_no_spaces() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd
+				.arg("check")
+				.arg("./tests/specs_ok.yaml")
+				.arg("-l")
+				.arg("B1,X1,X2,X3,P2")
+				.assert();
+			assert.success().code(0);
+		}
+
+		#[test]
 		fn it_calls_check_and_fails() {
 			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
 			let assert = cmd

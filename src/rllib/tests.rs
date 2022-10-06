@@ -36,10 +36,10 @@ pub struct TestSpec {
 }
 
 impl Tests {
-	pub fn load(file_path: &str) -> Result<Self> {
+	pub fn load(file_path: &PathBuf) -> Result<Self> {
 		let s = fs::read_to_string(PathBuf::from(file_path))?;
 		serde_yaml::from_str::<Self>(&s)
-			.with_context(|| format!("Failed deserializing tests from {}", file_path))
+			.with_context(|| format!("Failed deserializing tests from {}", file_path.display()))
 	}
 
 	/// This is our test runner. It reads tests from a yaml file and apply the rules

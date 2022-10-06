@@ -1,10 +1,9 @@
 //! This module defines all the claps (cli) options and flags.
 
+use crate::rllib::{parsed_label::ParsedLabel, rule::Tag};
 use clap::{crate_authors, crate_version, Parser, Subcommand};
 use regex::Regex;
 use std::path::PathBuf;
-
-use crate::rllib::rule::Tag;
 
 /// This utility allows checking labels based on rules
 #[derive(Parser)]
@@ -45,28 +44,30 @@ pub enum SubCommand {
 #[derive(Debug, Parser)]
 pub struct ListOpts {
 	/// The yaml spec file to be used.
-	#[clap(index = 1, default_value = "specs.yaml")]
-	pub spec_file: String,
+	#[clap(index = 1, default_value = "specs.yaml", value_hint=clap::ValueHint::FilePath)]
+	pub spec_file: PathBuf,
 }
 
 /// Lint the rules
 #[derive(Debug, Parser)]
 pub struct LintOpts {
 	/// Spec file
-	#[clap(index = 1, default_value = "specs.yaml")]
-	pub spec_file: String,
+	#[clap(index = 1, default_value = "specs.yaml", value_hint=clap::ValueHint::FilePath)]
+	pub spec_file: PathBuf,
 }
 
 /// Check label set against the rules
 #[derive(Debug, Parser)]
 pub struct CheckOpts {
 	/// Spec file
-	#[clap(index = 1, default_value = "specs.yaml")]
-	pub spec_file: String,
+	#[clap(index = 1, default_value = "specs.yaml", value_hint=clap::ValueHint::FilePath)]
+	pub spec_file: PathBuf,
 
-	/// The list of labels
-	#[clap(long, short, required = true, num_args=1..)]
-	pub labels: Vec<String>,
+	/// The list of labels. You may pass then as `-l A1,B1` or `-l A1 -l B1`.
+	///
+	/// NOTE: The following calls are NOT valid: `-l A1, B1` or `-l A1 B1`
+	#[clap(long, short, required = true, num_args=1.., value_delimiter = ',')]
+	pub labels: Vec<ParsedLabel>,
 
 	/// Show details about the rules of the faulty tests
 	#[clap(long)]
@@ -82,8 +83,8 @@ pub struct CheckOpts {
 #[derive(Debug, Parser)]
 pub struct TestOpts {
 	/// The yaml test file
-	#[clap(index = 1, default_value = "tests.yaml")]
-	pub test_specs: String,
+	#[clap(index = 1, default_value = "tests.yaml", value_hint=clap::ValueHint::FilePath)]
+	pub test_specs: PathBuf,
 
 	/// The spec is usually defined in the test file but you may override it
 	#[clap(long, short)]

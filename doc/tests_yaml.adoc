@@ -1,4 +1,5 @@
 
+[[tests]]
 == Test
 
 [source,yaml]

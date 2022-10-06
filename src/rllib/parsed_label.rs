@@ -51,7 +51,10 @@ impl PartialEq<str> for LabelId {
 
 impl From<&str> for LabelId {
 	fn from(s: &str) -> Self {
-		LabelId::from_str(s).expect("String should be a valid LabelId")
+		// TODO: switch to removes_matches once https://github.com/rust-lang/rust/issues/72826 is resolved
+		let sanitized_str = String::from(s).replace('\"', "");
+
+		LabelId::from_str(&sanitized_str).expect("String should be a valid LabelId")
 	}
 }
 
@@ -69,7 +72,8 @@ impl LabelId {
 	}
 
 	pub fn from_str(s: &str) -> Result<Self, String> {
-		let mut chars = s.chars();
+		let sanitized_str = String::from(s).replace('\"', "");
+		let mut chars = sanitized_str.chars();
 		let first = chars.next();
 		let second = chars.next();
 
@@ -93,10 +97,16 @@ impl Display for LabelId {
 		f.write_fmt(format_args!("{}{}", self.letter, self.number))
 	}
 }
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ParsedLabel {
 	pub id: LabelId,
 	pub description: Option<String>,
+}
+
+impl AsRef<ParsedLabel> for ParsedLabel {
+	fn as_ref(&self) -> &ParsedLabel {
+		self
+	}
 }
 
 impl TryFrom<&str> for ParsedLabel {
@@ -110,6 +120,16 @@ impl TryFrom<&str> for ParsedLabel {
 	}
 }
 
+impl From<String> for ParsedLabel {
+	fn from(s: String) -> Self {
+		let id = LabelId::from_str(&s).unwrap();
+		let mut s = s;
+		let description = s.drain(0..2).as_str().to_string();
+		let description = if description.is_empty() { None } else { Some(description) };
+		Self { id, description }
+	}
+}
+
 #[cfg(test)]
 mod test_parsed_label {
 	use super::*;
@@ -118,6 +138,20 @@ mod test_parsed_label {
 	fn test_parsed_label_from_str_ok() {
 		const INPUTS: &'static [&'static str] =
 			&["B0-Silent", "b0-silent", "Z9-foobar", "B0silent", "B00-Silent"];
+
+		INPUTS.iter().for_each(|&case| {
+			let label = ParsedLabel::try_from(case);
+			println!("{:?}", label);
+			assert!(label.is_ok());
+			let label = label.unwrap();
+			assert!(label.id.letter.is_uppercase());
+			assert!((0..=9).contains(&label.id.number));
+		});
+	}
+
+	#[test]
+	fn test_parsed_label_str_fancy_ok() {
+		const INPUTS: &'static [&'static str] = &["B0-Foo 🧸", "\"b0-silent\""];
 
 		INPUTS.iter().for_each(|&case| {
 			let label = ParsedLabel::try_from(case);

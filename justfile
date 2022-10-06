@@ -64,5 +64,5 @@ docker_push:
   docker push chevdor/{{ CLI_NAME }}:{{ VERSION }}
 
 git_tag:
-  git tag v{{ VERSION }}
-  git push origin v{{ VERSION }}
+  git tag v{{ VERSION }} -f
+  git push origin v{{ VERSION }} -f
