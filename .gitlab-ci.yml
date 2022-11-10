@@ -34,7 +34,7 @@ variables:
 .build-push-docker-image:          &build-push-docker-image
   <<:                              *kubernetes-env
   script:
-    - export VERSION=$(cat Cargo.toml| grep version | head -1 | awk '{print $3}')
+    - export VERSION=$(cat Cargo.toml| grep version | head -1 | awk '{print $3}' | tr -d '"')
     - test "${Docker_Hub_User_Parity}" -a "${Docker_Hub_Pass_Parity}" ||
         ( echo "no docker credentials provided"; exit 1 )
     - buildah bud
@@ -58,7 +58,7 @@ variables:
 .build-only-docker-image:          &build-only-docker-image
   <<:                              *kubernetes-env
   script:
-    - export VERSION=$(cat Cargo.toml| grep version | head -1 | awk '{print $3}')
+    - export VERSION=$(cat Cargo.toml| grep version | head -1 | awk '{print $3}' | tr -d '"')
     - buildah bud
           --format=docker
           --build-arg VCS_REF="${CI_COMMIT_SHA}"
