@@ -35,7 +35,6 @@ variables:
   <<:                              *kubernetes-env
   script:
     - export VERSION=${CI_COMMIT_SHORT_SHA}
-    - cd $COMPONENT
     - test "$Docker_Hub_User_Parity" -a "$Docker_Hub_Pass_Parity" ||
         ( echo "no docker credentials provided"; exit 1 )
     - buildah bud
@@ -59,7 +58,6 @@ variables:
 .build-only-docker-image:          &build-only-docker-image
   <<:                              *kubernetes-env
   script:
-    - cd $COMPONENT
     - buildah bud
           --format=docker
           --build-arg VCS_REF="${CI_COMMIT_SHA}"
