@@ -3,6 +3,7 @@ name = "ruled-labels"
 version = "0.3.2"
 edition = "2021"
 license-file = "LICENSE"
+description = "Utility to check labels"
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env", "unicode", "cargo", "color"] }
