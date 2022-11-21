@@ -34,6 +34,8 @@ You can now remove the leading `,` that is not useful:
 
     labels_args=${labels: :-1}
 
+WARNING: Before using the `labels_args`, you want to ensure you are using `IFS=","` so your shell does not split one label containing a space into 2 strings made of a valid label and one that will fail.
+
 And finally run the check:
 
     ruled-labels check --dev --labels $labels_args

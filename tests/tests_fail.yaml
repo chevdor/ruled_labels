@@ -1,5 +1,5 @@
 name: Name of the test
-spec_file: specs.yaml
+spec_file: specs_ok.yaml
 
 specs:
   - name: Should Fail

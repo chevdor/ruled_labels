@@ -1,0 +1,26 @@
+---
+name: Mini Specs
+version: 0.1.0
+description: A mini set of rules that is pretty friendly
+labels:
+  - name: A1-foo
+    description: Foo
+    color: d73a4a
+  - name: A2-bar
+    description: Bar
+    color: d73a4a
+
+# parser:
+#   id: ^(\w\d).*$     # default
+#   description: ^\w\d-(.*?)$ # Optional, un-used
+
+rules:
+  - name: Foo needs Bar
+    description: |
+      It is ok to pass no labels, but if foo is set, bar is required``
+    spec:
+      when: !one_of
+        - A1
+      require: !one_of
+        - A2
+      exclude: ~

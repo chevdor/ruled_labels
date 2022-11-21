@@ -122,6 +122,7 @@ impl TryFrom<&str> for ParsedLabel {
 
 impl From<String> for ParsedLabel {
 	fn from(s: String) -> Self {
+		println!("s = {:?}", s);
 		let id = LabelId::from_str(&s).unwrap();
 		let mut s = s;
 		let description = s.drain(0..2).as_str().to_string();
