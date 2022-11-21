@@ -69,6 +69,10 @@ pub struct CheckOpts {
 	#[clap(long, short, required = true, num_args=1.., value_delimiter = ',')]
 	pub labels: Vec<ParsedLabel>,
 
+	/// Depending on your rules, if may be ok to have no labels.
+	#[clap(long, short, conflicts_with = "labels")]
+	pub no_label: bool,
+
 	/// Show details about the rules of the faulty tests
 	#[clap(long)]
 	pub faulty: bool,

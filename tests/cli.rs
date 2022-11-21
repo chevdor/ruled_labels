@@ -169,5 +169,12 @@ mod cli_tests {
 				.assert();
 			assert.failure().code(1);
 		}
+
+		#[test]
+		fn it_passes_when_no_labels_required() {
+			let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap();
+			let assert = cmd.arg("check").arg("./tests/specs_mini.yaml").arg("--no-label").assert();
+			assert.success().code(0);
+		}
 	}
 }
