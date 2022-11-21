@@ -12,7 +12,7 @@ default:
       - api_failure
 
 variables:
-  CI_IMAGE:                        "quay.io/buildah/stable"
+  CI_IMAGE:                        "quay.io/buildah/stable:1.27"
   DOCKERHUB_REPO:                  "paritytech"
   DOCKERFILE:                      Dockerfile
   IMAGE_NAME:                      docker.io/$DOCKERHUB_REPO/$CI_PROJECT_NAME
