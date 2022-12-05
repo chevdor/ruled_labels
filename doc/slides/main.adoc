@@ -227,7 +227,7 @@ include::../../specs.yaml[tags=rules]
 
 [source,rust]
 ----
-include::../../src/lib/token_rule/require.rs[]
+include::../../src/rllib/token_rule/require.rs[]
 ----
 
 === Rule anathomy: min

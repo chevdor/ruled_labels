@@ -109,26 +109,22 @@ You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
 
 ## Help
 
-    ruled-labels 0.2.0
-
     This utility allows checking labels based on rules
 
-    USAGE:
-        ruled-labels [OPTIONS] <SUBCOMMAND>
+    Usage: ruled-labels [OPTIONS] <COMMAND>
 
-    OPTIONS:
-        -d, --dev         The output is more developer oriented
-        -h, --help        Print help information
-            --no-color    Output without any coloring, this is useful for documentation and CI system
-                          where the color code pollute the output
-        -V, --version     Print version information
+    Commands:
+      list   List all the rules
+      lint   Lint the rules
+      check  Check label set against the rules
+      test   Run tests using rules and a test set
+      help   Print this message or the help of the given subcommand(s)
 
-    SUBCOMMANDS:
-        check    Check label set against the rules
-        help     Print this message or the help of the given subcommand(s)
-        lint     Lint the rules
-        list     List all the rules
-        test     Run tests using rules and a test set
+    Options:
+          --no-color  Output without any coloring, this is useful for documentation and CI system where the color code pollute the output
+      -d, --dev       The output is more developer oriented
+      -h, --help      Print help information
+      -V, --version   Print version information
 
 ## Lint
 
@@ -140,55 +136,54 @@ You can pull the docker image from `chevdor`/`ruled-labels` or build you own:
     desc: Import from chevdor/glabel
     labels: 14
     Rules:
-     - Some topics (X labels)
+     - Some topics (X labels) (some_topics)
      - Exactly one visibility label (b_rules)
      - Note Worthy need one Prio label (b_need_p)
-     - Note Worthy implies no J label (b_excludes_j)
-     - Exclude all Ds
+     - Note Worthy implies no J label (b1_excludes_j)
+     - Exclude all Ds (exclude_all_d)
      - Require all of J
-     - Require 1 P and no X
+     - Require 1 P and no X (single_p_no_x) DISABLED
 
 ## Test
 
     Tests specs: tests.yaml
     Specs file : specs.yaml
 
-        ▶️ Running test  1: Fail
+        ▶️ Running test  1: Pass
+        PASSED  Pass
+
+        ▶️ Running test  2: Fail - b_rules
     You need to include one of the B* label(s)
-    You need to include all of the J* label(s)
-    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-        PASSED  Fail
+        PASSED  Fail - b_rules
 
-        ▶️ Running test  2: Pass
-    Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-    You need to include all of the J* label(s)
-    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-        FAILED  Pass
+        ▶️ Running test  3: Fail - some_topics
+    You need to include some of the J2, X1, X2 label(s)
+        PASSED  Fail - some_topics
 
-        ▶️ Running test  3: Missing topics
-    You need to include some of the X1, X2, J2 label(s)
+        ▶️ Running test  4: Fail - b_need_p
     Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-    You need to include all of the J* label(s)
-    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-        PASSED  Missing topics
+        PASSED  Fail - b_need_p
 
-        ▶️ Running test  4: Fail
-    You need to include some of the X1, X2, J2 label(s)
-    Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-    You need to include all of the J* label(s)
-    You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-        PASSED  Fail
-    FAILED  Some expectations were not OK
+        ▶️ Running test  5: Fail - b1_excludes_j
+    Since you have one of the B1 label(s), you need to exclude all of the J* label(s)
+        PASSED  Fail - b1_excludes_j
+
+        ▶️ Running test  6: Fail - b1_excludes_j 2
+    Since you have one of the B1 label(s), you need to exclude all of the J* label(s)
+        PASSED  Fail - b1_excludes_j 2
+    PASSED  All expectations are OK
 
 ## Check
 
-            FAILED  Some topics (X labels) | You need to include some of the J2, X1, X2 label(s)
+    s = "B0"
+    s = "A1"
+            FAILED  Some topics (X labels) | You need to include some of the X2, J2, X1 label(s)
             PASSED  Exactly one visibility label | You need to include one of the B* label(s)
             FAILED  Note Worthy need one Prio label | Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-            PASSED  Note Worthy implies no J label | You need to exclude all of the T* label(s)
+            SKIPPED Note Worthy implies no J label | Since you have one of the B1 label(s), you need to exclude all of the J* label(s)
             PASSED  Exclude all Ds | You need to exclude all of the D* label(s)
             FAILED  Require all of J | You need to include all of the J* label(s)
-            FAILED  Require 1 P and no X | You need to include one of the P* label(s) and you need to exclude all of the X1, X2 label(s)
+            SKIPPED Require 1 P and no X | You need to include one of the P* label(s) and you need to exclude all of the X1, X2 label(s)
     FAILED  chevdor/glabel v0.1.0 for labels A1, B0
 
 ## Vscode yaml

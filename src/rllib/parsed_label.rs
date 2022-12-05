@@ -73,7 +73,7 @@ impl LabelId {
 	}
 
 	/// This version, using a 1 digit code, is faster as it does not use
-	/// a regexp. See [from_str] for the new version based on a regexp.
+	/// a regexp. See [Self::from_str] for the new version based on a regexp.
 	pub fn from_str_fast(s: &str) -> Result<Self, String> {
 		let sanitized_str = String::from(s).replace('\"', "");
 		let mut chars = sanitized_str.chars();
@@ -94,7 +94,7 @@ impl LabelId {
 		Ok(LabelId::new(first, second))
 	}
 
-	/// Unlike [from_str_fast], this function uses a regexp and allows supporting
+	/// Unlike [Self::from_str_fast], this function uses a regexp and allows supporting
 	/// 2 digits codes.
 	pub fn from_str(s: &str) -> Result<Self, String> {
 		let sanitized_str = String::from(s).replace('\"', "").to_uppercase();

@@ -1,29 +1,26 @@
 Tests specs: tests.yaml
 Specs file : specs.yaml
 
-    ▶️ Running test  1: Fail
+    ▶️ Running test  1: Pass
+    PASSED  Pass
+
+    ▶️ Running test  2: Fail - b_rules
 You need to include one of the B* label(s)
-You need to include all of the J* label(s)
-You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-    PASSED  Fail
+    PASSED  Fail - b_rules
 
-    ▶️ Running test  2: Pass
-Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-You need to include all of the J* label(s)
-You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-    FAILED  Pass
+    ▶️ Running test  3: Fail - some_topics
+You need to include some of the J2, X1, X2 label(s)
+    PASSED  Fail - some_topics
 
-    ▶️ Running test  3: Missing topics
-You need to include some of the X1, X2, J2 label(s)
+    ▶️ Running test  4: Fail - b_need_p
 Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-You need to include all of the J* label(s)
-You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-    PASSED  Missing topics
+    PASSED  Fail - b_need_p
 
-    ▶️ Running test  4: Fail
-You need to include some of the X1, X2, J2 label(s)
-Since you have one of the B* label(s), you need to include one of the P* label(s) and you need to exclude all of the P1 label(s)
-You need to include all of the J* label(s)
-You need to include one of the P* label(s) and you need to exclude all of the X2, X1 label(s)
-    PASSED  Fail
-FAILED  Some expectations were not OK
+    ▶️ Running test  5: Fail - b1_excludes_j
+Since you have one of the B1 label(s), you need to exclude all of the J* label(s)
+    PASSED  Fail - b1_excludes_j
+
+    ▶️ Running test  6: Fail - b1_excludes_j 2
+Since you have one of the B1 label(s), you need to exclude all of the J* label(s)
+    PASSED  Fail - b1_excludes_j 2
+PASSED  All expectations are OK
