@@ -1,5 +1,6 @@
 //! [ParsedLabel] and [LabelId]
 
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -71,7 +72,9 @@ impl LabelId {
 		Self { letter, number }
 	}
 
-	pub fn from_str(s: &str) -> Result<Self, String> {
+	/// This version, using a 1 digit code, is faster as it does not use
+	/// a regexp. See [from_str] for the new version based on a regexp.
+	pub fn from_str_fast(s: &str) -> Result<Self, String> {
 		let sanitized_str = String::from(s).replace('\"', "");
 		let mut chars = sanitized_str.chars();
 		let first = chars.next();
@@ -87,6 +90,34 @@ impl LabelId {
 		if !(first.is_alphabetic() && second.is_numeric()) {
 			return Err(format!("Err 002: Invalid label: {s} ({first}{second})"))
 		}
+		let second = second.to_string().parse::<CodeNumber>().expect("Cannot fail");
+		Ok(LabelId::new(first, second))
+	}
+
+	/// Unlike [from_str_fast], this function uses a regexp and allows supporting
+	/// 2 digits codes.
+	pub fn from_str(s: &str) -> Result<Self, String> {
+		let sanitized_str = String::from(s).replace('\"', "").to_uppercase();
+
+		let re = Regex::new(r"^([A-Z]{1})(\d+).*$").unwrap();
+		let caps = re.captures(&sanitized_str);
+
+		if caps.is_none() {
+			return Err(format!("Err 002: Invalid label, no regexp match: {s}"))
+		}
+
+		let caps = caps.unwrap();
+
+		let first = caps.get(1).map(|m| m.as_str().chars().next().unwrap());
+		let second = caps.get(2).map(|m| m.as_str());
+
+		if first.is_none() || second.is_none() {
+			return Err(format!("Err 001: Invalid label: {s} ({first:?}{second:?})"))
+		}
+
+		let first = first.expect("Cannot fail").to_ascii_uppercase();
+		let second = second.expect("Cannot fail");
+
 		let second = second.to_string().parse::<CodeNumber>().expect("Cannot fail");
 		Ok(LabelId::new(first, second))
 	}
@@ -181,12 +212,26 @@ mod test_label_id {
 
 	#[test]
 	fn test_label_id_ok() {
-		const INPUTS: &'static [&'static str] = &["B0-Silent", "B1-silent", "X9-foobar", "B0"];
+		const INPUTS: &'static [&'static str] =
+			&["B0-Silent", "B1-silent", "X9-foobar", "X9 -foobar", "X9 - foobar", "B0"];
 
 		INPUTS.iter().for_each(|&case| {
 			let id = LabelId::from_str(case);
 			println!("{:?}", id);
 			assert!(id.is_ok());
+		});
+	}
+
+	#[test]
+	fn test_label_id_ok_2digits() {
+		const INPUTS: &'static [&'static str] =
+			&["B10-Silent", "B11-silent", "X09-foobar", "Z99 -foobar"];
+
+		INPUTS.iter().for_each(|&case| {
+			let id = LabelId::from_str(case);
+			println!("{:?}", id);
+			assert!(id.is_ok());
+			assert!(id.unwrap().number >= 9);
 		});
 	}
 
