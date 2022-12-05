@@ -28,8 +28,8 @@ impl RuleSpec {
 	/// can be shown if a rule check fails. The goal is **not** to
 	/// tell the user what is wrong but tell the user how to fix it.
 	pub fn to_user_tip(&self) -> String {
-		let when = if let Some(w) = &self.when { format!("{}, ", w) } else { String::new() };
-		let require = if let Some(r) = &self.require { format!("{}", r) } else { String::new() };
+		let when = if let Some(w) = &self.when { format!("{w}, ") } else { String::new() };
+		let require = if let Some(r) = &self.require { format!("{r}") } else { String::new() };
 
 		let and = if self.require.is_some() {
 			if self.exclude.is_some() {
@@ -41,9 +41,9 @@ impl RuleSpec {
 			""
 		};
 
-		let exclude = if let Some(e) = &self.exclude { format!("{}", e) } else { String::new() };
+		let exclude = if let Some(e) = &self.exclude { format!("{e}") } else { String::new() };
 
-		capitalize(&format!("{}{}{}{}", when, require, and, exclude))
+		capitalize(&format!("{when}{require}{and}{exclude}"))
 	}
 }
 

@@ -54,7 +54,7 @@ impl Display for Rule {
 		f.write_fmt(format_args!("{}", self.name))?;
 		f.write_fmt(format_args!(
 			"{}",
-			if let Some(id) = &self.id { format!(" ({})", id) } else { "".to_string() }
+			if let Some(id) = &self.id { format!(" ({id})") } else { "".to_string() }
 		))?;
 		f.write_fmt(format_args!("{}", if self.disabled { " DISABLED" } else { "" }))
 	}

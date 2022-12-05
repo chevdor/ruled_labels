@@ -52,7 +52,7 @@ impl Display for Specs {
 		f.write_str("Rules:\n")?;
 
 		self.rules.iter().for_each(|rule| {
-			let _ = f.write_fmt(format_args!(" - {}\n", rule));
+			let _ = f.write_fmt(format_args!(" - {rule}\n"));
 		});
 
 		Ok(())

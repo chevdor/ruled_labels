@@ -67,7 +67,7 @@ impl ResultPrinter {
 
 	pub fn print(&self) {
 		log::debug!("Printing with color = {:?}", self.color);
-		println!("{}", self);
+		println!("{self}");
 	}
 }
 

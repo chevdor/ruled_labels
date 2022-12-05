@@ -78,14 +78,14 @@ impl LabelId {
 		let second = chars.next();
 
 		if first.is_none() || second.is_none() {
-			return Err(format!("Err 001: Invalid label: {} ({:?}{:?})", s, first, second))
+			return Err(format!("Err 001: Invalid label: {s} ({first:?}{second:?})"))
 		}
 
 		let first = first.expect("Cannot fail").to_ascii_uppercase();
 		let second = second.expect("Cannot fail");
 
 		if !(first.is_alphabetic() && second.is_numeric()) {
-			return Err(format!("Err 002: Invalid label: {} ({}{})", s, first, second))
+			return Err(format!("Err 002: Invalid label: {s} ({first}{second})"))
 		}
 		let second = second.to_string().parse::<CodeNumber>().expect("Cannot fail");
 		Ok(LabelId::new(first, second))
@@ -122,7 +122,7 @@ impl TryFrom<&str> for ParsedLabel {
 
 impl From<String> for ParsedLabel {
 	fn from(s: String) -> Self {
-		println!("s = {:?}", s);
+		println!("s = {s:?}");
 		let id = LabelId::from_str(&s).unwrap();
 		let mut s = s;
 		let description = s.drain(0..2).as_str().to_string();

@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		SubCommand::List(cmd_opts) => {
 			log::debug!("list: {:#?}", cmd_opts);
 			let specs = Specs::load(&cmd_opts.spec_file)?;
-			println!("{}", specs);
+			println!("{specs}");
 			Ok(())
 		},
 
@@ -83,7 +83,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 				let faulty_rules: Vec<&Rule> = specs.find_faulty(res);
 				if !faulty_rules.is_empty() {
 					println!("faulty_rules:");
-					faulty_rules.iter().for_each(|rule| println!("{:#?}", rule));
+					faulty_rules.iter().for_each(|rule| println!("{rule:#?}"));
 				}
 			}
 
