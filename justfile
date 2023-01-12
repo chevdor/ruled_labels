@@ -48,6 +48,16 @@ gen_doc:
   FILE=specs
   tera $FILE.yaml -t templates/template.md.tera > $FILE.md
 
+# Run Rustfmt
+fmt:
+  cargo +nightly fmt
+
+# Run Clippy
+clippy:
+  cargo +nightly clippy
+
+check: fmt clippy
+
 # Open the slides in a browser
 slides:
   #!/usr/bin/env bash
