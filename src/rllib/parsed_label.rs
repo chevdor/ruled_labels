@@ -252,9 +252,38 @@ mod test_label_id {
 	}
 
 	#[test]
+	fn test_misc() {
+		assert_eq!("B0", LabelId::from_str("B0 - foo").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0-foo").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0 -foo").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0- foo").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0   -    foo").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0 - foo bar").unwrap().to_string());
+		assert_eq!("B0", LabelId::from_str("B0 - foo bar 😊😊😊").unwrap().to_string());
+	}
+
+	#[test]
 	fn test_from_str() {
 		let id = LabelId::from_str("B1").unwrap();
 		assert_eq!('B', id.letter);
 		assert_eq!(1, id.number);
+	}
+
+	#[test]
+	fn test_b42() {
+		assert_eq!("B42", LabelId::from_str("B42").unwrap().to_string());
+		assert_eq!("B42", LabelId::from_str("B0042").unwrap().to_string());
+		assert_eq!("B42", LabelId::from_str("b0042").unwrap().to_string());
+	}
+
+	#[test]
+	fn test_b255() {
+		assert_eq!("B255", LabelId::from_str("B255").unwrap().to_string());
+	}
+
+	#[test]
+	#[should_panic]
+	fn test_b256() {
+		let _ = LabelId::from_str("B256");
 	}
 }
