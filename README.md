@@ -1,6 +1,8 @@
 # Ruled Labels
 
-![badge](https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml/badge.svg?branch=master)
+<figure>
+<img src="https://github.com/chevdor/ruled_labels/actions/workflows/quick-check.yml/badge.svg?branch=master" alt="badge" />
+</figure>
 
 ## Intro
 
