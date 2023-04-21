@@ -64,14 +64,14 @@ slides:
   just -d doc/slides --justfile doc/slides/justfile present
 
 # Build and tag the docker images
-docker_build:
-  docker build -t {{ CLI_NAME }} -t chevdor/{{ CLI_NAME }} -t chevdor/{{ CLI_NAME }}:{{ VERSION }} .
-  docker images | grep {{ CLI_NAME }}
+container_build:
+  podman build -t {{ CLI_NAME }} -t docker.io/chevdor/{{ CLI_NAME }} -t docker.io/chevdor/{{ CLI_NAME }}:{{ VERSION }} .
+  podman images | grep {{ CLI_NAME }}
 
-# Push the docker image
-docker_push:
-  docker push chevdor/{{ CLI_NAME }}
-  docker push chevdor/{{ CLI_NAME }}:{{ VERSION }}
+# Push the podman image
+container_push:
+  podman push docker.io/chevdor/{{ CLI_NAME }}
+  podman push docker.io/chevdor/{{ CLI_NAME }}:{{ VERSION }}
 
 git_tag:
   git tag v{{ VERSION }} -f
