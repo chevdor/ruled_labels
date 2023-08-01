@@ -6,11 +6,19 @@ license-file = "LICENSE"
 description = "Utility to check labels"
 
 [dependencies]
-clap = { version = "4", features = ["derive", "env", "unicode", "cargo", "color"] }
+hubcaps = { version = "0.6", default-features = false, features = [
+	"rustls-tls",
+] }
+log = "0.4"
+clap = { version = "4", features = [
+	"derive",
+	"env",
+	"unicode",
+	"cargo",
+	"color",
+] }
 env_logger = "0.10"
 futures = "0.3"
-hubcaps = "0.6"
-log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = { version = "0.9", optional = false }
 termion = "2"
