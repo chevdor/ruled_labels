@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN cargo build --${PROFILE} --bins
+RUN cargo build --profile ${PROFILE} --bins
 
 # MAIN IMAGE FOR PEOPLE TO PULL --- small one#
 FROM docker.io/debian:buster-slim
