@@ -6,7 +6,7 @@ license-file = "LICENSE"
 description = "Utility to check labels"
 
 [dependencies]
-log = "0.4.22"
+log = "0.4.25"
 env_logger = "0.11.5"
 futures = "0.3.31"
 serde = { version = "1.0.215", features = ["derive"] }
@@ -18,7 +18,7 @@ anyhow = "1.0.94"
 hubcaps = { version = "0.6.2", default-features = false, features = [
 	"rustls-tls",
 ] }
-clap = { version = "4.5.23", features = [
+clap = { version = "4.5.28", features = [
 	"derive",
 	"env",
 	"unicode",
